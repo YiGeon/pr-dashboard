@@ -13,12 +13,14 @@
     "windows": [
       {
         "title": "PR Dashboard",
-        "width": 1024,
-        "height": 768
+        "width": 480,
+        "height": 720,
+        "minWidth": 400,
+        "minHeight": 500
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; connect-src 'self' https://api.github.com https://github.com; style-src 'self' 'unsafe-inline'"
     }
   },
   "bundle": {
