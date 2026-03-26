@@ -1,5 +1,6 @@
 use tauri::{
     AppHandle, Emitter, Manager,
+    image::Image,
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
 };
@@ -11,8 +12,16 @@ pub fn create_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
 
     let menu = Menu::with_items(app, &[&open_item, &refresh_item, &quit_item])?;
 
+    let tray_icon_bytes = include_bytes!("../icons/tray@2x.png");
+    let tray_img = image::load_from_memory(tray_icon_bytes)
+        .expect("Failed to load tray icon")
+        .to_rgba8();
+    let (w, h) = tray_img.dimensions();
+    let tray_icon = Image::new_owned(tray_img.into_raw(), w, h);
+
     TrayIconBuilder::new()
-        .icon(app.default_window_icon().unwrap().clone())
+        .icon(tray_icon)
+        .icon_as_template(true)
         .menu(&menu)
         .tooltip("PR Dashboard")
         .on_menu_event(move |app, event| match event.id.as_ref() {
