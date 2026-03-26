@@ -55,10 +55,7 @@ export async function fetchAll() {
 
     await checkAndNotify(prevMyPRs, myPRData, prevReviewPRs, reviewData);
 
-    // 메뉴바 뱃지 업데이트
-    const pending = reviewData.filter((pr) => pr.myReviewStatus === "pending").length;
-    const title = pending > 0 ? `${pending}` : "";
-    invoke("update_tray_title", { title }).catch(() => {});
+    updateTrayBadge();
   } catch (err) {
     console.error("Failed to fetch PRs:", err);
   } finally {
@@ -86,4 +83,15 @@ export function stopPolling() {
     clearInterval(pollingTimer);
     pollingTimer = null;
   }
+}
+
+export function updateTrayBadge() {
+  const $settings = get(settings);
+  if (!$settings.trayShowCount) {
+    invoke("update_tray_title", { title: "" }).catch(() => {});
+    return;
+  }
+  const pending = get(reviewRequestedPRs).filter((pr) => pr.myReviewStatus === "pending").length;
+  const title = pending > 0 ? `${pending}` : "";
+  invoke("update_tray_title", { title }).catch(() => {});
 }

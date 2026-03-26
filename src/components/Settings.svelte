@@ -1,6 +1,7 @@
 <script lang="ts">
   import { settings, updateSettings } from "../lib/stores/settings";
   import { username, logout } from "../lib/stores/auth";
+  import { updateTrayBadge } from "../lib/stores/prs";
 
   let { onclose }: { onclose: () => void } = $props();
 
@@ -94,7 +95,7 @@
           id="tray-count"
           type="checkbox"
           checked={$settings.trayShowCount}
-          onchange={() => updateSettings({ trayShowCount: !$settings.trayShowCount })}
+          onchange={() => { updateSettings({ trayShowCount: !$settings.trayShowCount }); updateTrayBadge(); }}
         />
       </div>
     </section>
