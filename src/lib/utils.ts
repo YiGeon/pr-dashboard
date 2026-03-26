@@ -1,4 +1,4 @@
-import type { Review, ReviewState } from "./types";
+import type { ReviewState } from "./types";
 
 export function relativeTime(dateStr: string): string {
   const now = Date.now();
