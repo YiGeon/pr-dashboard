@@ -1,0 +1,50 @@
+import type { Review, ReviewState } from "./types";
+
+export function relativeTime(dateStr: string): string {
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diffMs = now - then;
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHr = Math.floor(diffMs / 3600000);
+  const diffDay = Math.floor(diffMs / 86400000);
+
+  if (diffMin < 1) return "just now";
+  if (diffHr < 1) return `${diffMin}m ago`;
+  if (diffDay < 1) return `${diffHr}h ago`;
+  return `${diffDay}d ago`;
+}
+
+interface RawReview {
+  author: string;
+  state: string;
+  submittedAt: string;
+}
+
+export function computeReviewStatus(reviews: RawReview[]): ReviewState {
+  if (reviews.length === 0) return "pending";
+
+  const latestByAuthor = new Map<string, RawReview>();
+  for (const r of reviews) {
+    const existing = latestByAuthor.get(r.author);
+    if (!existing || r.submittedAt > existing.submittedAt) {
+      latestByAuthor.set(r.author, r);
+    }
+  }
+
+  const states = [...latestByAuthor.values()].map((r) => r.state);
+  if (states.some((s) => s === "CHANGES_REQUESTED")) return "changes_requested";
+  if (states.every((s) => s === "APPROVED")) return "approved";
+  if (states.some((s) => s === "COMMENTED")) return "commented";
+  return "pending";
+}
+
+const STATUS_PRIORITY: Record<ReviewState, number> = {
+  changes_requested: 0,
+  pending: 1,
+  commented: 2,
+  approved: 3,
+};
+
+export function reviewStatusPriority(status: ReviewState): number {
+  return STATUS_PRIORITY[status];
+}
