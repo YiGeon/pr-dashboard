@@ -3,7 +3,7 @@
   import TabBar from "./TabBar.svelte";
   import FilterBar from "./FilterBar.svelte";
   import PRList from "./PRList.svelte";
-  import { filteredMyPRs, filteredReviewRequestedPRs, isLoading, startPolling } from "../lib/stores/prs";
+  import { filteredMyPRs, filteredReviewRequestedPRs, isLoading, startPolling, fetchAll } from "../lib/stores/prs";
   import { username, logout } from "../lib/stores/auth";
   import { loadSettings } from "../lib/stores/settings";
 
@@ -26,9 +26,9 @@
     <span class="app-title">PR Dashboard</span>
     <div class="header-actions">
       <span class="username">{$username}</span>
-      {#if $isLoading}
-        <span class="loading-indicator">↻</span>
-      {/if}
+      <button class="icon-btn" onclick={fetchAll} disabled={$isLoading} title="Refresh">
+        <span class:spinning={$isLoading}>↻</span>
+      </button>
       <button class="icon-btn" onclick={() => (showSettings = !showSettings)} title="Settings">
         ⚙️
       </button>
@@ -87,9 +87,9 @@
     color: #8b949e;
   }
 
-  .loading-indicator {
+  .spinning {
+    display: inline-block;
     animation: spin 1s linear infinite;
-    font-size: 0.9rem;
   }
 
   @keyframes spin {

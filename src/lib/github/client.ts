@@ -30,16 +30,18 @@ export function getUsername(): string {
 
 export async function fetchMyPRs(): Promise<MyPR[]> {
   if (!graphqlClient) throw new Error("Client not initialized");
+  if (!currentUsername) await fetchUsername();
   const data = await graphqlClient(MY_PRS_QUERY, {
-    query: "is:pr is:open author:@me",
+    searchQuery: `is:pr is:open author:${currentUsername}`,
   });
   return parseMyPRs(data);
 }
 
 export async function fetchReviewRequestedPRs(): Promise<ReviewRequestedPR[]> {
   if (!graphqlClient) throw new Error("Client not initialized");
+  if (!currentUsername) await fetchUsername();
   const data = await graphqlClient(REVIEW_REQUESTED_QUERY, {
-    query: "is:pr is:open review-requested:@me",
+    searchQuery: `is:pr is:open review-requested:${currentUsername}`,
   });
   return parseReviewRequestedPRs(data, currentUsername);
 }

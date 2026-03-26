@@ -48,6 +48,8 @@ export async function fetchAll() {
     lastFetchedAt.set(new Date().toISOString());
 
     await checkAndNotify(prevMyPRs, myPRData, prevReviewPRs, reviewData);
+  } catch (err) {
+    console.error("Failed to fetch PRs:", err);
   } finally {
     isLoading.set(false);
   }

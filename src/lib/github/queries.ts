@@ -2,8 +2,8 @@ import type { MyPR, ReviewRequestedPR, Review, ReviewState, CIStatus } from "../
 import { computeReviewStatus } from "../utils";
 
 export const MY_PRS_QUERY = `
-  query($query: String!) {
-    search(query: $query, type: ISSUE, first: 50) {
+  query($searchQuery: String!) {
+    search(query: $searchQuery, type: ISSUE, first: 50) {
       nodes {
         ... on PullRequest {
           id
@@ -25,8 +25,8 @@ export const MY_PRS_QUERY = `
 `;
 
 export const REVIEW_REQUESTED_QUERY = `
-  query($query: String!) {
-    search(query: $query, type: ISSUE, first: 50) {
+  query($searchQuery: String!) {
+    search(query: $searchQuery, type: ISSUE, first: 50) {
       nodes {
         ... on PullRequest {
           id
