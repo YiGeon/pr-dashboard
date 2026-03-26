@@ -19,7 +19,7 @@ pub fn create_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let (w, h) = tray_img.dimensions();
     let tray_icon = Image::new_owned(tray_img.into_raw(), w, h);
 
-    TrayIconBuilder::new()
+    TrayIconBuilder::with_id("main")
         .icon(tray_icon)
         .icon_as_template(true)
         .menu(&menu)
