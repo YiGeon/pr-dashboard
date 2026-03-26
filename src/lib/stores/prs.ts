@@ -1,4 +1,5 @@
 import { writable, derived, get } from "svelte/store";
+import { invoke } from "@tauri-apps/api/core";
 import { fetchMyPRs, fetchReviewRequestedPRs, fetchOrganizations } from "../github/client";
 import type { MyPR, ReviewRequestedPR } from "../types";
 import { settings } from "./settings";
@@ -11,6 +12,11 @@ export const reviewRequestedPRs = writable<ReviewRequestedPR[]>([]);
 export const organizations = writable<string[]>([]);
 export const isLoading = writable(false);
 export const lastFetchedAt = writable<string | null>(null);
+
+export const pendingReviewCount = derived(
+  reviewRequestedPRs,
+  ($prs) => $prs.filter((pr) => pr.myReviewStatus === "pending").length
+);
 
 export const filteredMyPRs = derived(
   [myPRs, selectedOrgs, searchQuery, sortKey],
@@ -48,6 +54,11 @@ export async function fetchAll() {
     lastFetchedAt.set(new Date().toISOString());
 
     await checkAndNotify(prevMyPRs, myPRData, prevReviewPRs, reviewData);
+
+    // 메뉴바 뱃지 업데이트
+    const pending = reviewData.filter((pr) => pr.myReviewStatus === "pending").length;
+    const title = pending > 0 ? `${pending}` : "";
+    invoke("update_tray_title", { title }).catch(() => {});
   } catch (err) {
     console.error("Failed to fetch PRs:", err);
   } finally {
