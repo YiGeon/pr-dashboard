@@ -56,6 +56,9 @@ cd src-tauri && cargo check  # Rust 컴파일 검사
 - `git tag v*` 푸시 시 자동 빌드 (macOS ARM/Intel, Windows, Linux)
 - `tauri-apps/tauri-action`으로 Draft Release 생성
 - GitHub Secrets 필요: `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`
+- Rust 의존성 캐시 적용 (`actions/cache`로 `~/.cargo` + `src-tauri/target` 캐시)
+- macOS ad-hoc 서명: `APPLE_SIGNING_IDENTITY="-"` (tauri-action env로 직접 전달)
+- 릴리즈 플로우: `git tag vX.Y.Z && git push origin vX.Y.Z` → Actions 자동 빌드 → Draft Release → Publish
 
 ## GraphQL Variable Naming
 

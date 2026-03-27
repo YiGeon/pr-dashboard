@@ -115,7 +115,27 @@ git push origin v0.1.0
 | Windows | `.msi`, `.exe` |
 | Linux | `.deb`, `.AppImage` |
 
-> 코드 서명이 되어있지 않으므로, macOS에서는 첫 실행 시 우클릭 > 열기 또는 시스템 설정에서 "Open Anyway"를 선택해야 한다.
+### macOS 실행 시 주의사항
+
+Apple Developer 계정으로 정식 서명/공증되지 않은 앱이므로 macOS Gatekeeper 경고가 발생한다.
+(ad-hoc 서명이 적용되어 있어 "손상됨"이 아닌 "확인되지 않은 개발자" 경고가 표시됨)
+
+**실행 방법:**
+1. dmg에서 앱을 Applications로 드래그
+2. **우클릭 > 열기** (일반 더블클릭이 아닌 우클릭)
+3. "확인되지 않은 개발자" 경고에서 **열기** 클릭
+4. 이후부터는 정상 실행됨
+
+또는 터미널에서:
+```bash
+xattr -cr /Applications/PR\ Dashboard.app
+```
+
+### CI/CD 파이프라인
+
+- `.github/workflows/release.yml`에서 워크플로우 관리
+- Rust 의존성 캐시 적용 (첫 빌드 ~10분, 이후 ~3~4분)
+- macOS 빌드 시 ad-hoc 서명 자동 적용 (`APPLE_SIGNING_IDENTITY="-"`)
 
 ## 테스트
 
