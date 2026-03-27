@@ -47,4 +47,17 @@ cd src-tauri && cargo check  # Rust 컴파일 검사
 
 ## OAuth Setup Required
 
-`src-tauri/src/auth.rs`의 `CLIENT_ID`와 `CLIENT_SECRET`을 실제 GitHub OAuth App 값으로 교체해야 앱이 동작함.
+`.env` 파일에 `GITHUB_CLIENT_ID`와 `GITHUB_CLIENT_SECRET`을 설정해야 앱이 동작함.
+`build.rs`가 빌드 시 `.env`를 읽어 `env!()` 매크로로 컴파일 타임에 주입.
+
+## Release
+
+- GitHub Actions 워크플로우: `.github/workflows/release.yml`
+- `git tag v*` 푸시 시 자동 빌드 (macOS ARM/Intel, Windows, Linux)
+- `tauri-apps/tauri-action`으로 Draft Release 생성
+- GitHub Secrets 필요: `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`
+
+## GraphQL Variable Naming
+
+- octokit/graphql에서 `query`는 예약어 — GraphQL 변수명으로 사용 불가
+- `$searchQuery`로 변수명 사용 중 (`queries.ts`, `client.ts`)

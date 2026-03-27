@@ -47,14 +47,20 @@ npm install
    - **Homepage URL**: `http://localhost`
    - **Authorization callback URL**: `http://localhost/callback`
 3. 생성 후 **Client ID**와 **Client Secret**을 복사
-4. `src-tauri/src/auth.rs`에서 값 교체:
+4. 프로젝트 루트에 `.env` 파일 생성:
 
-```rust
-const CLIENT_ID: &str = "your_client_id_here";
-const CLIENT_SECRET: &str = "your_client_secret_here";
+```bash
+cp .env.example .env
 ```
 
-> **주의:** Client Secret은 코드에 하드코딩되어 있다. 프로덕션 배포 시에는 환경변수나 빌드 시 주입 방식으로 변경해야 한다.
+5. `.env` 파일에 값 입력:
+
+```
+GITHUB_CLIENT_ID=your_client_id_here
+GITHUB_CLIENT_SECRET=your_client_secret_here
+```
+
+> `.env` 파일은 `.gitignore`에 포함되어 있어 코드에 시크릿이 노출되지 않는다. 빌드 시 `build.rs`가 `.env`를 읽어 컴파일 타임에 주입한다.
 
 ## 실행
 
@@ -73,6 +79,43 @@ npm run tauri build
 ```
 
 플랫폼별 설치 파일이 `src-tauri/target/release/bundle/`에 생성된다.
+
+## 릴리즈
+
+GitHub Actions를 통해 자동으로 크로스플랫폼 빌드 및 릴리즈가 진행된다.
+
+### 사전 설정 (최초 1회)
+
+GitHub 레포에 시크릿을 등록해야 한다:
+
+```bash
+gh secret set OAUTH_CLIENT_ID --body "your_client_id"
+gh secret set OAUTH_CLIENT_SECRET --body "your_client_secret"
+```
+
+### 릴리즈 생성
+
+```bash
+# 버전 태그 생성 및 푸시
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+태그 푸시 시 GitHub Actions가 자동으로:
+1. macOS (Apple Silicon + Intel), Windows, Linux 빌드
+2. Draft Release 생성 + 설치 파일 첨부
+3. GitHub Releases 페이지에서 Draft 확인 → **Publish** 클릭으로 공개
+
+### 빌드 산출물
+
+| 플랫폼 | 파일 |
+|---|---|
+| macOS (Apple Silicon) | `.dmg` (aarch64) |
+| macOS (Intel) | `.dmg` (x86_64) |
+| Windows | `.msi`, `.exe` |
+| Linux | `.deb`, `.AppImage` |
+
+> 코드 서명이 되어있지 않으므로, macOS에서는 첫 실행 시 우클릭 > 열기 또는 시스템 설정에서 "Open Anyway"를 선택해야 한다.
 
 ## 테스트
 
