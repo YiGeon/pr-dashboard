@@ -23,6 +23,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             auth::start_oauth,
+            auth::get_github_client_id,
             tray::update_tray_title,
         ])
         .run(tauri::generate_context!())

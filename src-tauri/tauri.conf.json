@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/nicoverbruggen/tauri-v2-schema/main/schema.json",
   "productName": "PR Dashboard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "identifier": "com.pr-dashboard.app",
   "build": {
     "beforeDevCommand": "npm run dev",

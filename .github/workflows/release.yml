@@ -83,7 +83,107 @@ jobs:
             - **Windows**: `.msi` or `.exe`
             - **Linux**: `.deb` or `.AppImage`
 
-            > macOS: 코드 서명이 없으므로 첫 실행 시 우클릭 > 열기를 선택하세요.
+            **Homebrew (macOS):**
+            ```
+            brew tap YiGeon/pr-dashboard && brew install --cask pr-dashboard
+            ```
+
+            > **macOS (Sequoia 15 이상):** 첫 실행 시 차단 다이얼로그를 닫은 후, 시스템 설정 → 개인정보 보호 및 보안 → "그래도 열기"를 클릭하세요 (최초 1회). 또는 터미널에서 `xattr -cr /Applications/PR\ Dashboard.app`을 실행하세요.
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+  update-homebrew:
+    needs: release
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Wait for release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+          # Draft release에서 DMG 에셋이 준비될 때까지 대기 (최대 5분)
+          for i in $(seq 1 30); do
+            COUNT=$(gh api "repos/${{ github.repository }}/releases" --jq "[.[0].assets[].name | select(endswith(\".dmg\"))] | length")
+            if [ "$COUNT" -ge 2 ]; then
+              echo "Found $COUNT DMG assets"
+              break
+            fi
+            echo "Waiting for DMG assets... ($i/30)"
+            sleep 10
+          done
+
+      - name: Download DMGs and calculate SHA256
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Draft release에서 DMG 다운로드
+          gh api "repos/${{ github.repository }}/releases" --jq '.[0].assets[] | select(.name | endswith(".dmg")) | .url' | while read -r url; do
+            NAME=$(gh api "repos/${{ github.repository }}/releases" --jq ".[0].assets[] | select(.url == \"$url\") | .name")
+            curl -sL -H "Authorization: token $GH_TOKEN" -H "Accept: application/octet-stream" "$url" -o "$RUNNER_TEMP/$NAME"
+          done
+
+          # SHA256 계산
+          ARM_DMG=$(ls "$RUNNER_TEMP"/*aarch64*.dmg 2>/dev/null | head -1)
+          INTEL_DMG=$(ls "$RUNNER_TEMP"/*x64*.dmg 2>/dev/null | head -1)
+
+          if [ -n "$ARM_DMG" ]; then
+            echo "SHA_ARM=$(shasum -a 256 "$ARM_DMG" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+          fi
+          if [ -n "$INTEL_DMG" ]; then
+            echo "SHA_INTEL=$(shasum -a 256 "$INTEL_DMG" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+          fi
+
+      - name: Update Homebrew Cask
+        env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          cat > "$RUNNER_TEMP/pr-dashboard.rb" <<'CASKEOF'
+          cask "pr-dashboard" do
+            arch arm: "aarch64", intel: "x64"
+
+            version "REPLACE_VERSION"
+            sha256 arm:   "REPLACE_SHA_ARM",
+                   intel: "REPLACE_SHA_INTEL"
+
+            url "https://github.com/YiGeon/pr-dashboard/releases/download/v#{version}/PR.Dashboard_#{version}_#{arch}.dmg"
+            name "PR Dashboard"
+            desc "Cross-organization GitHub PR management dashboard"
+            homepage "https://github.com/YiGeon/pr-dashboard"
+
+            depends_on macos: ">= :catalina"
+
+            app "PR Dashboard.app"
+          end
+          CASKEOF
+
+          # 들여쓰기 제거 및 변수 치환
+          sed -i '' 's/^          //' "$RUNNER_TEMP/pr-dashboard.rb"
+          sed -i '' "s/REPLACE_VERSION/${{ env.VERSION }}/" "$RUNNER_TEMP/pr-dashboard.rb"
+          sed -i '' "s/REPLACE_SHA_ARM/${{ env.SHA_ARM }}/" "$RUNNER_TEMP/pr-dashboard.rb"
+          sed -i '' "s/REPLACE_SHA_INTEL/${{ env.SHA_INTEL }}/" "$RUNNER_TEMP/pr-dashboard.rb"
+
+          CONTENT=$(base64 -i "$RUNNER_TEMP/pr-dashboard.rb")
+          FILE_SHA=$(GH_TOKEN="$HOMEBREW_TAP_TOKEN" gh api \
+            repos/YiGeon/homebrew-pr-dashboard/contents/Casks/pr-dashboard.rb \
+            --jq '.sha' 2>/dev/null || echo "")
+
+          if [ -n "$FILE_SHA" ]; then
+            GH_TOKEN="$HOMEBREW_TAP_TOKEN" gh api \
+              repos/YiGeon/homebrew-pr-dashboard/contents/Casks/pr-dashboard.rb \
+              --method PUT \
+              -f message="Update PR Dashboard to v${{ env.VERSION }}" \
+              -f sha="$FILE_SHA" \
+              -f content="$CONTENT"
+          else
+            GH_TOKEN="$HOMEBREW_TAP_TOKEN" gh api \
+              repos/YiGeon/homebrew-pr-dashboard/contents/Casks/pr-dashboard.rb \
+              --method PUT \
+              -f message="Add PR Dashboard v${{ env.VERSION }}" \
+              -f content="$CONTENT"
+          fi

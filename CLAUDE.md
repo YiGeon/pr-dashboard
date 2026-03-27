@@ -138,4 +138,4 @@ cp .env.example .env
 - octokit/graphql에서 `query`는 예약어 — GraphQL 변수명으로 사용 불가. `$searchQuery`로 사용 중
 - GitHub GraphQL search에서 `author:@me`는 동작하지 않음 — 실제 username으로 치환 필요
 - `include_bytes!`로 포함된 트레이 아이콘은 Rust 재컴파일 필요 (HMR 미반영)
-- macOS 코드 서명 없이 배포 시 Gatekeeper "손상됨" 경고 → ad-hoc 서명(`-`)으로 완화
+- macOS 코드 서명 없이 배포 시 Gatekeeper 경고 → ad-hoc 서명(`-`)으로 완화. macOS Sequoia(15)부터 우클릭 열기 불가, 시스템 설정 → 개인정보 보호 및 보안 → "그래도 열기" 필요

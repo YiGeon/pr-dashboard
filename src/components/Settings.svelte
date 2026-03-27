@@ -2,6 +2,8 @@
   import { settings, updateSettings } from "../lib/stores/settings";
   import { username, logout } from "../lib/stores/auth";
   import { updateTrayBadge } from "../lib/stores/prs";
+  import { invoke } from "@tauri-apps/api/core";
+  import { open } from "@tauri-apps/plugin-shell";
 
   let { onclose }: { onclose: () => void } = $props();
 
@@ -18,6 +20,11 @@
   async function handleLogout() {
     await logout();
   }
+
+  async function openOrgAccess() {
+    const clientId = await invoke<string>("get_github_client_id");
+    await open(`https://github.com/settings/connections/applications/${clientId}`);
+  }
 </script>
 
 <div class="settings">
@@ -33,6 +40,7 @@
         <span class="setting-label">Logged in as</span>
         <span class="setting-value">{$username}</span>
       </div>
+      <button class="org-access-btn" onclick={openOrgAccess}>Manage organization access</button>
       <button class="logout-btn" onclick={handleLogout}>Sign out</button>
     </section>
 
@@ -173,6 +181,22 @@
     border-radius: 4px;
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
+  }
+
+  .org-access-btn {
+    background: #21262d;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+
+  .org-access-btn:hover {
+    background: #30363d;
   }
 
   .logout-btn {

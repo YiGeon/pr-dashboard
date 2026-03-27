@@ -51,6 +51,11 @@ fn extract_code(request: &str) -> Option<String> {
     None
 }
 
+#[tauri::command]
+pub fn get_github_client_id() -> String {
+    CLIENT_ID.to_string()
+}
+
 fn exchange_code(code: &str, redirect_uri: &str) -> Result<String, String> {
     let client = reqwest::blocking::Client::new();
     let resp = client
