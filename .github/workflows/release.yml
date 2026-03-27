@@ -65,18 +65,12 @@ jobs:
           echo "GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID" > .env
           echo "GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET" >> .env
 
-      - name: Ad-hoc codesign (macOS)
-        if: matrix.platform == 'macos-latest'
-        run: |
-          # tauri-action이 빌드 후 .app에 서명하도록 환경변수 설정
-          # ad-hoc 서명: "손상됨" 대신 "확인되지 않은 개발자" 경고로 변경
-          echo "APPLE_SIGNING_IDENTITY=-" >> $GITHUB_ENV
-
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APPLE_SIGNING_IDENTITY: ${{ env.APPLE_SIGNING_IDENTITY }}
+          # macOS ad-hoc 서명: "손상됨" → "확인되지 않은 개발자"로 변경
+          APPLE_SIGNING_IDENTITY: ${{ matrix.platform == 'macos-latest' && '-' || '' }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'PR Dashboard ${{ github.ref_name }}'
