@@ -1,5 +1,6 @@
 .superpowers/
 .claude/
+.serena/
 
 # Dependencies
 node_modules/
