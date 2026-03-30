@@ -25,26 +25,32 @@
   .tab-bar {
     display: flex;
     border-bottom: 1px solid #30363d;
-    padding: 0 1rem;
+    padding: 0 1.25rem;
+    gap: 0;
+    background: #161b22;
   }
 
   .tab {
     background: none;
     border: none;
     color: #8b949e;
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
     cursor: pointer;
     border-bottom: 2px solid transparent;
-    transition: color 0.2s, border-color 0.2s;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    position: relative;
   }
 
   .tab:hover {
     color: #e6edf3;
+    background: rgba(255, 255, 255, 0.04);
   }
 
   .tab.active {
-    color: #58a6ff;
-    border-bottom-color: #58a6ff;
+    color: #e6edf3;
+    font-weight: 600;
+    border-bottom-color: #f78166;
   }
 </style>

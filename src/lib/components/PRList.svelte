@@ -25,15 +25,18 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 1.25rem;
     overflow-y: auto;
     flex: 1;
+    max-width: 960px;
+    width: 100%;
+    margin: 0 auto;
   }
 
   .empty {
     text-align: center;
     color: #484f58;
-    padding: 2rem;
-    font-size: 0.875rem;
+    padding: 3rem;
+    font-size: 0.85rem;
   }
 </style>

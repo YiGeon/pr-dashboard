@@ -78,9 +78,15 @@
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1rem;
-    padding: 0.25rem;
+    font-size: 0.9rem;
+    padding: 0.375rem;
     position: relative;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+
+  .bell-btn:hover {
+    background: #21262d;
   }
 
   .badge {
@@ -113,6 +119,7 @@
     z-index: 100;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
   }
 
   .dropdown-header {

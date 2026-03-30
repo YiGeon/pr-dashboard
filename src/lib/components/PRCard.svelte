@@ -76,10 +76,10 @@
     display: flex;
     background: #161b22;
     border: 1px solid #30363d;
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
-    transition: border-color 0.2s;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
     width: 100%;
     text-align: left;
     padding: 0;
@@ -88,16 +88,18 @@
   }
 
   .pr-card:hover {
-    border-color: #58a6ff;
+    border-color: #484f58;
+    background: #1c2129;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 
   .status-bar {
-    width: 4px;
+    width: 3px;
     flex-shrink: 0;
   }
 
   .card-content {
-    padding: 0.75rem;
+    padding: 0.75rem 1rem;
     flex: 1;
     min-width: 0;
   }
@@ -107,32 +109,50 @@
   }
 
   .pr-title {
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: #e6edf3;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    line-height: 1.4;
   }
 
   .card-meta {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
     font-size: 0.75rem;
     color: #8b949e;
-    margin-bottom: 0.375rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-meta .repo {
+    color: #7d8590;
+  }
+
+  .card-meta .time {
+    color: #656d76;
   }
 
   .reviewers, .my-review-status {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.375rem;
     font-size: 0.75rem;
     color: #c9d1d9;
   }
 
+  .reviewer {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+  }
+
   .no-reviews {
-    color: #484f58;
+    color: #3d444d;
     font-size: 0.75rem;
+    font-style: italic;
   }
 </style>

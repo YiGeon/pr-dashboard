@@ -13,6 +13,8 @@ html, body {
   color: #c9d1d9;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 ::-webkit-scrollbar {
@@ -30,4 +32,8 @@ html, body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #484f58;
+}
+
+::selection {
+  background: rgba(88, 166, 255, 0.3);
 }
