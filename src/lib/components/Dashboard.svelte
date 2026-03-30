@@ -19,6 +19,7 @@
 
   let feedbackMessage = $state("");
   let feedbackTimer: ReturnType<typeof setTimeout> | null = null;
+  let showShortcuts = $state(false);
 
   $effect(() => {
     const count = $lastUpdateCount;
@@ -103,7 +104,15 @@
         e.preventDefault();
         break;
       case "Escape":
-        focusedIndex.set(-1);
+        if (showShortcuts) {
+          showShortcuts = false;
+        } else {
+          focusedIndex.set(-1);
+        }
+        break;
+      case "?":
+        showShortcuts = !showShortcuts;
+        e.preventDefault();
         break;
     }
   }
@@ -149,6 +158,27 @@
 </div>
 
 <Toast />
+
+{#if showShortcuts}
+  <div class="shortcuts-overlay" onclick={() => (showShortcuts = false)}>
+    <div class="shortcuts-modal" onclick={(e) => e.stopPropagation()}>
+      <div class="shortcuts-header">
+        <h3>Keyboard Shortcuts</h3>
+        <button class="shortcuts-close" onclick={() => (showShortcuts = false)}>Esc</button>
+      </div>
+      <div class="shortcuts-body">
+        <div class="shortcut-row"><kbd>↑</kbd> <kbd>↓</kbd> <span>PR 카드 이동</span></div>
+        <div class="shortcut-row"><kbd>Enter</kbd> <span>PR 열기</span></div>
+        <div class="shortcut-row"><kbd>r</kbd> <span>새로고침</span></div>
+        <div class="shortcut-row"><kbd>1</kbd> <span>Review Requests 탭</span></div>
+        <div class="shortcut-row"><kbd>2</kbd> <span>My PRs 탭</span></div>
+        <div class="shortcut-row"><kbd>/</kbd> <span>검색</span></div>
+        <div class="shortcut-row"><kbd>Esc</kbd> <span>닫기 / 포커스 해제</span></div>
+        <div class="shortcut-row"><kbd>?</kbd> <span>단축키 도움말</span></div>
+      </div>
+    </div>
+  </div>
+{/if}
 
 <style>
   .dashboard {
@@ -243,5 +273,82 @@
   @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
+  }
+
+  .shortcuts-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fade-in 0.15s ease;
+  }
+
+  .shortcuts-modal {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    width: 340px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  }
+
+  .shortcuts-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #30363d;
+  }
+
+  .shortcuts-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e6edf3;
+    margin: 0;
+  }
+
+  .shortcuts-close {
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    font-size: 11px;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .shortcuts-body {
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .shortcut-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 13px;
+    color: #c9d1d9;
+  }
+
+  .shortcut-row span {
+    flex: 1;
+    text-align: right;
+    color: #8b949e;
+  }
+
+  .shortcut-row kbd {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    padding: 0.125rem 0.375rem;
+    font-size: 12px;
+    font-family: inherit;
+    color: #c9d1d9;
+    min-width: 24px;
+    text-align: center;
   }
 </style>
