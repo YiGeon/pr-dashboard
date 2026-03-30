@@ -16,6 +16,7 @@
   let stopPolling: (() => void) | null = null;
   let tick = $state(0);
   let tickTimer: ReturnType<typeof setInterval> | null = null;
+  let lastFetchedRelative = $derived(tick !== undefined ? relativeTime($lastFetchedAt ?? "") : "");
 
   let feedbackMessage = $state("");
   let feedbackTimer: ReturnType<typeof setTimeout> | null = null;
@@ -129,8 +130,7 @@
     <div class="header-actions">
       <span class="username">{$username}</span>
       {#if $lastFetchedAt}
-        {@const _ = tick}
-        <span class="last-fetched">{relativeTime($lastFetchedAt)}</span>
+        <span class="last-fetched">{lastFetchedRelative}</span>
       {/if}
       {#if feedbackMessage}
         <span class="feedback-msg">{feedbackMessage}</span>

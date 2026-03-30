@@ -61,6 +61,7 @@
     padding: 0.75rem 1.25rem;
     overflow-y: auto;
     flex: 1;
+    min-height: 0;
     max-width: 960px;
     width: 100%;
     margin: 0 auto;
