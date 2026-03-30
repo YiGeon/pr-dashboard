@@ -18,6 +18,18 @@ export const MY_PRS_QUERY = `
           commits(last: 1) {
             nodes { commit { statusCheckRollup { state } } }
           }
+          mergeable
+          baseRefName
+          isDraft
+          labels(first: 10) {
+            nodes { name color }
+          }
+          reviewThreads(first: 50) {
+            nodes { isResolved }
+          }
+          additions
+          deletions
+          changedFiles
         }
       }
     }
@@ -39,6 +51,21 @@ export const REVIEW_REQUESTED_QUERY = `
           reviews(last: 20) {
             nodes { author { login } state submittedAt }
           }
+          commits(last: 1) {
+            nodes { commit { statusCheckRollup { state } } }
+          }
+          mergeable
+          baseRefName
+          isDraft
+          labels(first: 10) {
+            nodes { name color }
+          }
+          reviewThreads(first: 50) {
+            nodes { isResolved }
+          }
+          additions
+          deletions
+          changedFiles
         }
       }
     }
