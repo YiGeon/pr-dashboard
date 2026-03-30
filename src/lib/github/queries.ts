@@ -107,8 +107,8 @@ function normalizeCIStatus(rollup: { state: string } | null): CIStatus {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseMyPRs(data: any): MyPR[] {
-  return data.search.nodes
+export function parseMyPRs(nodes: any[]): MyPR[] {
+  return nodes
     .filter((node: any) => node.id)
     .map((node: any) => {
       const rawNodes = node.reviews?.nodes ?? [];
@@ -150,8 +150,8 @@ export function parseMyPRs(data: any): MyPR[] {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseReviewRequestedPRs(data: any, username: string, forcePending: boolean = true): ReviewRequestedPR[] {
-  return data.search.nodes
+export function parseReviewRequestedPRs(nodes: any[], username: string, forcePending: boolean = true): ReviewRequestedPR[] {
+  return nodes
     .filter((node: any) => node.id)
     .map((node: any) => {
       const rawNodes = node.reviews?.nodes ?? [];

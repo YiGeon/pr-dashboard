@@ -87,7 +87,7 @@ const MOCK_REVIEW_REQUESTED_RESPONSE = {
 
 describe("parseMyPRs", () => {
   it("parses GraphQL response into MyPR array", () => {
-    const result = parseMyPRs(MOCK_MY_PRS_RESPONSE);
+    const result = parseMyPRs(MOCK_MY_PRS_RESPONSE.search.nodes);
     expect(result).toHaveLength(2);
 
     expect(result[0]).toEqual({
@@ -126,7 +126,7 @@ describe("parseMyPRs", () => {
 
 describe("parseReviewRequestedPRs", () => {
   it("parses with pending status and previous review info", () => {
-    const result = parseReviewRequestedPRs(MOCK_REVIEW_REQUESTED_RESPONSE, "me", true);
+    const result = parseReviewRequestedPRs(MOCK_REVIEW_REQUESTED_RESPONSE.search.nodes, "me", true);
     expect(result).toHaveLength(1);
 
     expect(result[0]).toEqual({
@@ -177,7 +177,7 @@ describe("parseReviewRequestedPRs", () => {
         }],
       },
     };
-    const result = parseReviewRequestedPRs(response, "me", true);
+    const result = parseReviewRequestedPRs(response.search.nodes, "me", true);
     expect(result[0].myReviewStatus).toBe("pending");
     expect(result[0].previousReviewStatus).toBeNull();
     expect(result[0].ciStatus).toBeNull();
@@ -185,7 +185,7 @@ describe("parseReviewRequestedPRs", () => {
   });
 
   it("returns actual review status when forcePending is false", () => {
-    const result = parseReviewRequestedPRs(MOCK_REVIEW_REQUESTED_RESPONSE, "me", false);
+    const result = parseReviewRequestedPRs(MOCK_REVIEW_REQUESTED_RESPONSE.search.nodes, "me", false);
     expect(result).toHaveLength(1);
     expect(result[0].myReviewStatus).toBe("approved");
     expect(result[0].previousReviewStatus).toBeNull();

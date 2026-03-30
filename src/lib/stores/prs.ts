@@ -27,13 +27,13 @@ let pollingTimer: ReturnType<typeof setInterval> | null = null;
 export async function fetchAll() {
   isLoading.set(true);
   try {
-    const [myPRData, reviewData, orgs] = await Promise.all([
+    const [myPRData, reviewData, orgs, allApproved] = await Promise.all([
       fetchMyPRs(),
       fetchReviewRequestedPRs(),
       fetchOrganizations(),
+      fetchApprovedPRs(),
     ]);
 
-    const allApproved = await fetchApprovedPRs();
     const reviewRequestedIds = new Set(reviewData.map((pr) => pr.id));
     const approvedData = allApproved.filter((pr) => !reviewRequestedIds.has(pr.id));
 
