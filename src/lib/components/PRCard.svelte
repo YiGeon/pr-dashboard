@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { MyPR, ReviewRequestedPR, Label } from "$lib/types";
-  import { relativeTime, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, labelTextColor } from "$lib/utils";
+  import { relativeTime, formatDate, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, labelTextColor } from "$lib/utils";
 
   let { pr, mode, focused = false }: { pr: MyPR | ReviewRequestedPR; mode: "my-prs" | "review-requests"; focused?: boolean } = $props();
 
@@ -51,7 +51,9 @@
         <span class="author">by {pr.author}</span>
       {/if}
       <span class="separator">·</span>
-      <span class="time">{relativeTime(pr.updatedAt)}</span>
+      <span class="time" title="Created: {formatDate(pr.createdAt)}">created {relativeTime(pr.createdAt)}</span>
+      <span class="separator">·</span>
+      <span class="time" title="Updated: {formatDate(pr.updatedAt)}">updated {relativeTime(pr.updatedAt)}</span>
     </div>
     {#if mode === "my-prs"}
       <div class="reviewers">
