@@ -26,12 +26,12 @@ const MOCK_MY_PRS: MyPR[] = [
 ];
 
 describe("urgentMyPRCount", () => {
-  it("counts PRs with conflict or CI failure", async () => {
+  it("counts PRs with conflict", async () => {
     const { myPRs } = await import("../../../src/lib/stores/prs");
     myPRs.set([
-      { ...MOCK_MY_PRS[0], mergeable: "conflicting", ciStatus: "success" },
-      { ...MOCK_MY_PRS[1], mergeable: "mergeable", ciStatus: "failure" },
-      { ...MOCK_MY_PRS[2], mergeable: "mergeable", ciStatus: "success" },
+      { ...MOCK_MY_PRS[0], mergeable: "conflicting" },
+      { ...MOCK_MY_PRS[1], mergeable: "mergeable" },
+      { ...MOCK_MY_PRS[2], mergeable: "conflicting" },
     ]);
     expect(get(urgentMyPRCount)).toBe(2);
   });

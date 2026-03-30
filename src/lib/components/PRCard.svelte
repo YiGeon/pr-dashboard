@@ -87,16 +87,6 @@
       {:else}
         <span class="merge-status checking">● Checking...</span>
       {/if}
-      {#if "ciStatus" in pr && pr.ciStatus}
-        <span class="dot-sep">·</span>
-        {#if pr.ciStatus === "success"}
-          <span class="ci success">✓ CI passed</span>
-        {:else if pr.ciStatus === "failure"}
-          <span class="ci failure">✗ CI failed</span>
-        {:else}
-          <span class="ci pending">● CI running</span>
-        {/if}
-      {/if}
       {#if pr.unresolvedThreads > 0}
         <span class="dot-sep">·</span>
         <span class="threads">💬 {pr.unresolvedThreads}</span>
@@ -278,10 +268,6 @@
   .merge-status.conflicting { color: #f85149; }
   .merge-status.checking { color: #d29922; }
   .merge-status.draft { color: #8b949e; }
-
-  .ci.success { color: #3fb950; }
-  .ci.failure { color: #f85149; }
-  .ci.pending { color: #d29922; }
 
   .threads { color: #d29922; }
 
