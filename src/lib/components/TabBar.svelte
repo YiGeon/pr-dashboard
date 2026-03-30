@@ -1,7 +1,8 @@
 <script lang="ts">
   import { myPRs, reviewRequestedPRs, urgentMyPRCount } from "$lib/stores/prs";
+  import type { TabKey } from "$lib/stores/filters";
 
-  let { activeTab = $bindable("my-prs") }: { activeTab: "my-prs" | "review-requests" } = $props();
+  let { activeTab = $bindable("my-prs") }: { activeTab: TabKey } = $props();
 </script>
 
 <div class="tab-bar">

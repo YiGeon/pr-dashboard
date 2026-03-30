@@ -6,7 +6,7 @@ export const selectedOrgs = writable<string[]>([]);
 export const searchQuery = writable("");
 export const sortKey = writable<SortKey>("updatedAt");
 
-export type TabKey = "my-prs" | "review-requests";
+export type TabKey = "my-prs" | "review-requests" | "approved";
 export const activeTab = writable<TabKey>("review-requests");
 export const focusedIndex = writable<number>(-1);
 

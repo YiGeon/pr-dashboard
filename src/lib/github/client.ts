@@ -46,6 +46,16 @@ export async function fetchReviewRequestedPRs(): Promise<ReviewRequestedPR[]> {
   return parseReviewRequestedPRs(data, currentUsername);
 }
 
+export async function fetchApprovedPRs(reviewRequestedIds: Set<string>): Promise<ReviewRequestedPR[]> {
+  if (!graphqlClient) throw new Error("Client not initialized");
+  if (!currentUsername) await fetchUsername();
+  const data = await graphqlClient(REVIEW_REQUESTED_QUERY, {
+    searchQuery: `is:pr is:open reviewed-by:${currentUsername} -author:${currentUsername}`,
+  });
+  return parseReviewRequestedPRs(data, currentUsername, false)
+    .filter((pr) => pr.myReviewStatus === "approved" && !reviewRequestedIds.has(pr.id));
+}
+
 export async function fetchOrganizations(): Promise<string[]> {
   if (!graphqlClient) throw new Error("Client not initialized");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

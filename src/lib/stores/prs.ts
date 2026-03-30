@@ -1,5 +1,5 @@
 import { writable, derived, get } from "svelte/store";
-import { fetchMyPRs, fetchReviewRequestedPRs, fetchOrganizations } from "../github/client";
+import { fetchMyPRs, fetchReviewRequestedPRs, fetchApprovedPRs, fetchOrganizations } from "../github/client";
 import type { MyPR, ReviewRequestedPR } from "../types";
 import { settings } from "./settings";
 import { selectedOrgs, searchQuery, sortKey } from "./filters";
@@ -8,6 +8,7 @@ import { checkAndNotify } from "../notifications";
 
 export const myPRs = writable<MyPR[]>([]);
 export const reviewRequestedPRs = writable<ReviewRequestedPR[]>([]);
+export const approvedPRs = writable<ReviewRequestedPR[]>([]);
 export const organizations = writable<string[]>([]);
 export const isLoading = writable(false);
 export const lastFetchedAt = writable<string | null>(null);
@@ -34,6 +35,14 @@ export const filteredReviewRequestedPRs = derived(
   }
 );
 
+export const filteredApprovedPRs = derived(
+  [approvedPRs, selectedOrgs, searchQuery, sortKey],
+  ([$prs, $orgs, $query, $sortKey]) => {
+    const filtered = applyFilters($prs, $orgs, $query);
+    return applySorting(filtered, $sortKey);
+  }
+);
+
 let pollingTimer: ReturnType<typeof setInterval> | null = null;
 
 export async function fetchAll() {
@@ -45,18 +54,22 @@ export async function fetchAll() {
       fetchOrganizations(),
     ]);
 
+    const reviewRequestedIds = new Set(reviewData.map((pr) => pr.id));
+    const approvedData = await fetchApprovedPRs(reviewRequestedIds);
+
     const prevMyPRs = get(myPRs);
     const prevReviewPRs = get(reviewRequestedPRs);
 
     myPRs.set(myPRData);
     reviewRequestedPRs.set(reviewData);
+    approvedPRs.set(approvedData);
     organizations.set(orgs);
     lastFetchedAt.set(new Date().toISOString());
 
     await checkAndNotify(prevMyPRs, myPRData, prevReviewPRs, reviewData);
 
     const prevIds = new Set([...prevMyPRs.map(p => p.id), ...prevReviewPRs.map(p => p.id)]);
-    const currIds = new Set([...myPRData.map(p => p.id), ...reviewData.map(p => p.id)]);
+    const currIds = new Set([...myPRData.map(p => p.id), ...reviewData.map(p => p.id), ...approvedData.map(p => p.id)]);
     const changed = [...currIds].filter(id => !prevIds.has(id)).length +
                     [...prevIds].filter(id => !currIds.has(id)).length;
     lastUpdateCount.set(changed > 0 ? changed : null);
