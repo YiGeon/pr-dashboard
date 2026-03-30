@@ -1,4 +1,4 @@
-import type { MyPR, ReviewRequestedPR, Review, ReviewState, CIStatus } from "../types";
+import type { MyPR, ReviewRequestedPR, Review, ReviewState, CIStatus, MergeableState, Label } from "../types";
 import { computeReviewStatus } from "../utils";
 
 export const MY_PRS_QUERY = `
@@ -83,6 +83,15 @@ function normalizeReviewState(state: string): ReviewState {
   return map[state] ?? "pending";
 }
 
+function normalizeMergeableState(state: string | null): MergeableState {
+  const map: Record<string, MergeableState> = {
+    MERGEABLE: "mergeable",
+    CONFLICTING: "conflicting",
+    UNKNOWN: "unknown",
+  };
+  return map[state ?? ""] ?? "unknown";
+}
+
 function normalizeCIStatus(rollup: { state: string } | null): CIStatus {
   if (!rollup) return null;
   const map: Record<string, CIStatus> = {
@@ -127,6 +136,14 @@ export function parseMyPRs(data: any): MyPR[] {
         reviews,
         reviewStatus: computeReviewStatus(rawReviews),
         ciStatus,
+        baseRef: node.baseRefName ?? "main",
+        labels: (node.labels?.nodes ?? []).map((l: any) => ({ name: l.name, color: l.color })),
+        unresolvedThreads: (node.reviewThreads?.nodes ?? []).filter((t: any) => !t.isResolved).length,
+        additions: node.additions ?? 0,
+        deletions: node.deletions ?? 0,
+        changedFiles: node.changedFiles ?? 0,
+        isDraft: node.isDraft ?? false,
+        mergeable: normalizeMergeableState(node.mergeable),
       };
     });
 }
@@ -147,6 +164,9 @@ export function parseReviewRequestedPRs(data: any, username: string): ReviewRequ
         (a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
       )[0];
 
+      const commitNode = node.commits?.nodes?.[0]?.commit;
+      const ciStatus = normalizeCIStatus(commitNode?.statusCheckRollup ?? null);
+
       return {
         id: node.id,
         title: node.title,
@@ -158,6 +178,15 @@ export function parseReviewRequestedPRs(data: any, username: string): ReviewRequ
         updatedAt: node.updatedAt,
         myReviewStatus: "pending" as ReviewState,
         previousReviewStatus: myLatest ? normalizeReviewState(myLatest.state) : null,
+        baseRef: node.baseRefName ?? "main",
+        labels: (node.labels?.nodes ?? []).map((l: any) => ({ name: l.name, color: l.color })),
+        unresolvedThreads: (node.reviewThreads?.nodes ?? []).filter((t: any) => !t.isResolved).length,
+        additions: node.additions ?? 0,
+        deletions: node.deletions ?? 0,
+        changedFiles: node.changedFiles ?? 0,
+        isDraft: node.isDraft ?? false,
+        mergeable: normalizeMergeableState(node.mergeable),
+        ciStatus,
       };
     });
 }

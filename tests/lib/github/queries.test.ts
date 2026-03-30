@@ -20,6 +20,14 @@ const MOCK_MY_PRS_RESPONSE = {
         commits: {
           nodes: [{ commit: { statusCheckRollup: { state: "SUCCESS" } } }],
         },
+        mergeable: "MERGEABLE",
+        baseRefName: "develop",
+        isDraft: false,
+        labels: { nodes: [{ name: "bug", color: "d73a4a" }] },
+        reviewThreads: { nodes: [{ isResolved: true }, { isResolved: false }, { isResolved: false }] },
+        additions: 42,
+        deletions: 8,
+        changedFiles: 5,
       },
       {
         id: "PR_2",
@@ -32,6 +40,14 @@ const MOCK_MY_PRS_RESPONSE = {
         commits: {
           nodes: [{ commit: { statusCheckRollup: null } }],
         },
+        mergeable: "CONFLICTING",
+        baseRefName: "main",
+        isDraft: true,
+        labels: { nodes: [] },
+        reviewThreads: { nodes: [] },
+        additions: 12,
+        deletions: 4,
+        changedFiles: 2,
       },
     ],
   },
@@ -53,6 +69,15 @@ const MOCK_REVIEW_REQUESTED_RESPONSE = {
             { author: { login: "me" }, state: "APPROVED", submittedAt: "2026-03-26T06:00:00Z" },
           ],
         },
+        commits: { nodes: [{ commit: { statusCheckRollup: { state: "SUCCESS" } } }] },
+        mergeable: "MERGEABLE",
+        baseRefName: "main",
+        isDraft: false,
+        labels: { nodes: [{ name: "feature", color: "a2eeef" }] },
+        reviewThreads: { nodes: [{ isResolved: false }] },
+        additions: 65,
+        deletions: 20,
+        changedFiles: 4,
       },
     ],
   },
@@ -78,10 +103,22 @@ describe("parseMyPRs", () => {
       ],
       reviewStatus: "changes_requested",
       ciStatus: "success",
+      baseRef: "develop",
+      labels: [{ name: "bug", color: "d73a4a" }],
+      unresolvedThreads: 2,
+      additions: 42,
+      deletions: 8,
+      changedFiles: 5,
+      isDraft: false,
+      mergeable: "mergeable",
     });
 
     expect(result[1].reviewStatus).toBe("pending");
     expect(result[1].ciStatus).toBeNull();
+    expect(result[1].isDraft).toBe(true);
+    expect(result[1].mergeable).toBe("conflicting");
+    expect(result[1].unresolvedThreads).toBe(0);
+    expect(result[1].labels).toEqual([]);
   });
 });
 
@@ -101,6 +138,15 @@ describe("parseReviewRequestedPRs", () => {
       updatedAt: "2026-03-26T06:00:00Z",
       myReviewStatus: "pending",
       previousReviewStatus: "approved",
+      baseRef: "main",
+      labels: [{ name: "feature", color: "a2eeef" }],
+      unresolvedThreads: 1,
+      additions: 65,
+      deletions: 20,
+      changedFiles: 4,
+      isDraft: false,
+      mergeable: "mergeable",
+      ciStatus: "success",
     });
   });
 
@@ -113,11 +159,22 @@ describe("parseReviewRequestedPRs", () => {
           author: { login: "other" },
           createdAt: "2026-03-25T00:00:00Z", updatedAt: "2026-03-25T00:00:00Z",
           reviews: { nodes: [] },
+          commits: { nodes: [{ commit: { statusCheckRollup: null } }] },
+          mergeable: "UNKNOWN",
+          baseRefName: "develop",
+          isDraft: false,
+          labels: { nodes: [] },
+          reviewThreads: { nodes: [] },
+          additions: 0,
+          deletions: 0,
+          changedFiles: 0,
         }],
       },
     };
     const result = parseReviewRequestedPRs(response, "me");
     expect(result[0].myReviewStatus).toBe("pending");
     expect(result[0].previousReviewStatus).toBeNull();
+    expect(result[0].ciStatus).toBeNull();
+    expect(result[0].mergeable).toBe("unknown");
   });
 });
