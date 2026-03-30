@@ -32,6 +32,7 @@ export interface ReviewRequestedPR {
   createdAt: string;
   updatedAt: string;
   myReviewStatus: ReviewState;
+  previousReviewStatus: ReviewState | null;
 }
 
 export type SortKey = "updatedAt" | "createdAt" | "reviewStatus";

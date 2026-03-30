@@ -48,6 +48,11 @@ const MOCK_REVIEW_REQUESTED_RESPONSE = {
         author: { login: "hong" },
         createdAt: "2026-03-25T08:00:00Z",
         updatedAt: "2026-03-26T06:00:00Z",
+        reviews: {
+          nodes: [
+            { author: { login: "me" }, state: "APPROVED", submittedAt: "2026-03-26T06:00:00Z" },
+          ],
+        },
       },
     ],
   },
@@ -81,8 +86,8 @@ describe("parseMyPRs", () => {
 });
 
 describe("parseReviewRequestedPRs", () => {
-  it("parses GraphQL response into ReviewRequestedPR array with pending status", () => {
-    const result = parseReviewRequestedPRs(MOCK_REVIEW_REQUESTED_RESPONSE);
+  it("parses with pending status and previous review info", () => {
+    const result = parseReviewRequestedPRs(MOCK_REVIEW_REQUESTED_RESPONSE, "me");
     expect(result).toHaveLength(1);
 
     expect(result[0]).toEqual({
@@ -95,6 +100,24 @@ describe("parseReviewRequestedPRs", () => {
       createdAt: "2026-03-25T08:00:00Z",
       updatedAt: "2026-03-26T06:00:00Z",
       myReviewStatus: "pending",
+      previousReviewStatus: "approved",
     });
+  });
+
+  it("returns null previousReviewStatus when user has not reviewed", () => {
+    const response = {
+      search: {
+        nodes: [{
+          id: "PR_4", title: "test", url: "https://github.com/x/y/pull/1",
+          repository: { nameWithOwner: "x/y", owner: { login: "x" } },
+          author: { login: "other" },
+          createdAt: "2026-03-25T00:00:00Z", updatedAt: "2026-03-25T00:00:00Z",
+          reviews: { nodes: [] },
+        }],
+      },
+    };
+    const result = parseReviewRequestedPRs(response, "me");
+    expect(result[0].myReviewStatus).toBe("pending");
+    expect(result[0].previousReviewStatus).toBeNull();
   });
 });

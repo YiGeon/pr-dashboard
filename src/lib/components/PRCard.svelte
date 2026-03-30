@@ -57,14 +57,18 @@
     {:else}
       <div class="my-review-status">
         {STATUS_ICONS[(pr as ReviewRequestedPR).myReviewStatus]}
-        {#if (pr as ReviewRequestedPR).myReviewStatus === "pending"}
-          Not reviewed
-        {:else if (pr as ReviewRequestedPR).myReviewStatus === "approved"}
-          Approved
-        {:else if (pr as ReviewRequestedPR).myReviewStatus === "changes_requested"}
-          Changes requested
-        {:else}
-          Commented
+        Re-review requested
+        {#if (pr as ReviewRequestedPR).previousReviewStatus}
+          <span class="previous-review">
+            (prev: {STATUS_ICONS[(pr as ReviewRequestedPR).previousReviewStatus!]}
+            {#if (pr as ReviewRequestedPR).previousReviewStatus === "approved"}
+              Approved
+            {:else if (pr as ReviewRequestedPR).previousReviewStatus === "changes_requested"}
+              Changes requested
+            {:else}
+              Commented
+            {/if})
+          </span>
         {/if}
       </div>
     {/if}
@@ -155,6 +159,11 @@
     font-size: 12px;
     font-weight: 500;
     display: inline-flex;
+    gap: 0.25rem;
+  }
+
+  .previous-review {
+    color: #656d76;
   }
 
   .reviewer {
