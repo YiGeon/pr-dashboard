@@ -60,7 +60,7 @@ describe("detectNewReviewRequests", () => {
     const pr: ReviewRequestedPR = {
       id: "1", title: "feat: x", url: "", repo: "a/b", org: "a",
       author: "other", createdAt: "", updatedAt: "", myReviewStatus: "pending", previousReviewStatus: null,
-      baseRef: "main", labels: [], unresolvedThreads: 0, additions: 0, deletions: 0, changedFiles: 0, isDraft: false, mergeable: "mergeable" as const, ciStatus: null,
+      reviews: [], baseRef: "main", labels: [], unresolvedThreads: 0, additions: 0, deletions: 0, changedFiles: 0, isDraft: false, mergeable: "mergeable" as const, ciStatus: null,
     };
     expect(detectNewReviewRequests([pr], [pr])).toEqual([]);
   });
@@ -70,7 +70,7 @@ describe("detectNewReviewRequests", () => {
     const curr: ReviewRequestedPR[] = [{
       id: "1", title: "feat: payment", url: "https://github.com/c/d/pull/5", repo: "c/d", org: "c",
       author: "hong", createdAt: "", updatedAt: "", myReviewStatus: "pending", previousReviewStatus: null,
-      baseRef: "main", labels: [], unresolvedThreads: 0, additions: 0, deletions: 0, changedFiles: 0, isDraft: false, mergeable: "mergeable" as const, ciStatus: null,
+      reviews: [], baseRef: "main", labels: [], unresolvedThreads: 0, additions: 0, deletions: 0, changedFiles: 0, isDraft: false, mergeable: "mergeable" as const, ciStatus: null,
     }];
     const result = detectNewReviewRequests(prev, curr);
     expect(result).toHaveLength(1);
