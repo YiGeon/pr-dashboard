@@ -64,25 +64,23 @@
       </div>
     {:else}
       {@const rrPR = pr as ReviewRequestedPR}
-      <div class="my-review-status">
-        {#if rrPR.previousReviewStatus}
-          ⏳ Re-review requested
-          <span class="previous-review">
-            (prev: {STATUS_ICONS[rrPR.previousReviewStatus]} {STATUS_LABELS[rrPR.previousReviewStatus]})
-          </span>
-        {:else}
-          ⏳ Not reviewed
-        {/if}
-      </div>
-      {#if rrPR.reviews.length > 0}
-        <div class="reviewers">
-          {#each rrPR.reviews as review}
-            <span class="reviewer">
-              {STATUS_ICONS[review.state]} {review.author}
+      <div class="reviewers">
+        <span class="my-review-status">
+          {#if rrPR.previousReviewStatus}
+            ⏳ Re-review requested
+            <span class="previous-review">
+              (prev: {STATUS_ICONS[rrPR.previousReviewStatus]} {STATUS_LABELS[rrPR.previousReviewStatus]})
             </span>
-          {/each}
-        </div>
-      {/if}
+          {:else}
+            ⏳ Not reviewed
+          {/if}
+        </span>
+        {#each rrPR.reviews as review}
+          <span class="reviewer">
+            {STATUS_ICONS[review.state]} {review.author}
+          </span>
+        {/each}
+      </div>
     {/if}
     <div class="status-line">
       {#if pr.isDraft}
