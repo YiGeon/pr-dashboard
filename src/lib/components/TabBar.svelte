@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { myPRs, reviewRequestedPRs, urgentMyPRCount } from "$lib/stores/prs";
+  import { myPRs, reviewRequestedPRs, urgentMyPRCount, approvedPRs } from "$lib/stores/prs";
   import type { TabKey } from "$lib/stores/filters";
 
   let { activeTab = $bindable("my-prs") }: { activeTab: TabKey } = $props();
@@ -22,6 +22,13 @@
     {#if $urgentMyPRCount > 0}
       <span class="urgent-badge">{$urgentMyPRCount}</span>
     {/if}
+  </button>
+  <button
+    class="tab"
+    class:active={activeTab === "approved"}
+    onclick={() => (activeTab = "approved")}
+  >
+    Approved ({$approvedPRs.length})
   </button>
 </div>
 

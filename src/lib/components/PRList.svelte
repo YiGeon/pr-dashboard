@@ -2,14 +2,16 @@
   import PRCard from "./PRCard.svelte";
   import type { MyPR, ReviewRequestedPR } from "$lib/types";
   import type { TabKey } from "$lib/stores/filters";
-  import { isLoading, myPRs, reviewRequestedPRs } from "$lib/stores/prs";
+  import { isLoading, myPRs, reviewRequestedPRs, approvedPRs } from "$lib/stores/prs";
   import { selectedOrgs, searchQuery, focusedIndex } from "$lib/stores/filters";
 
   let { prs, mode }: { prs: (MyPR | ReviewRequestedPR)[]; mode: TabKey } = $props();
 
   const hasActiveFilter = $derived($selectedOrgs.length > 0 || $searchQuery.trim() !== "");
   const hasOriginalData = $derived(
-    mode === "my-prs" ? $myPRs.length > 0 : $reviewRequestedPRs.length > 0
+    mode === "my-prs" ? $myPRs.length > 0 :
+    mode === "approved" ? $approvedPRs.length > 0 :
+    $reviewRequestedPRs.length > 0
   );
 
   function resetFilters() {

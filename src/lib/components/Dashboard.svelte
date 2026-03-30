@@ -5,7 +5,7 @@
   import PRList from "./PRList.svelte";
   import Toast from "./Toast.svelte";
   import NotificationBell from "./NotificationBell.svelte";
-  import { filteredMyPRs, filteredReviewRequestedPRs, isLoading, startPolling, fetchAll, lastFetchedAt, lastUpdateCount } from "$lib/stores/prs";
+  import { filteredMyPRs, filteredReviewRequestedPRs, filteredApprovedPRs, isLoading, startPolling, fetchAll, lastFetchedAt, lastUpdateCount } from "$lib/stores/prs";
   import { relativeTime } from "$lib/utils";
   import { username, logout } from "$lib/stores/auth";
   import { loadSettings, showSettings } from "$lib/stores/settings";
@@ -61,11 +61,11 @@
       return;
     }
 
-    const handledKeys = ["ArrowDown", "ArrowUp", "Enter", "r", "1", "2", "/", "Escape", "?"];
+    const handledKeys = ["ArrowDown", "ArrowUp", "Enter", "r", "1", "2", "3", "/", "Escape", "?"];
     if (!handledKeys.includes(e.key)) return;
 
     const currentTab = get(activeTab);
-    const prs = currentTab === "my-prs" ? get(filteredMyPRs) : get(filteredReviewRequestedPRs);
+    const prs = currentTab === "my-prs" ? get(filteredMyPRs) : currentTab === "approved" ? get(filteredApprovedPRs) : get(filteredReviewRequestedPRs);
     const maxIndex = prs.length - 1;
 
     switch (e.key) {
@@ -100,6 +100,11 @@
         break;
       case "2":
         activeTab.set("my-prs");
+        focusedIndex.set(-1);
+        e.preventDefault();
+        break;
+      case "3":
+        activeTab.set("approved");
         focusedIndex.set(-1);
         e.preventDefault();
         break;
@@ -154,6 +159,8 @@
     <FilterBar />
     {#if $activeTab === "my-prs"}
       <PRList prs={$filteredMyPRs} mode="my-prs" />
+    {:else if $activeTab === "approved"}
+      <PRList prs={$filteredApprovedPRs} mode="approved" />
     {:else}
       <PRList prs={$filteredReviewRequestedPRs} mode="review-requests" />
     {/if}
@@ -177,6 +184,7 @@
         <div class="shortcut-row"><kbd>r</kbd> <span>새로고침</span></div>
         <div class="shortcut-row"><kbd>1</kbd> <span>Review Requests 탭</span></div>
         <div class="shortcut-row"><kbd>2</kbd> <span>My PRs 탭</span></div>
+        <div class="shortcut-row"><kbd>3</kbd> <span>Approved 탭</span></div>
         <div class="shortcut-row"><kbd>/</kbd> <span>검색</span></div>
         <div class="shortcut-row"><kbd>Esc</kbd> <span>닫기 / 포커스 해제</span></div>
         <div class="shortcut-row"><kbd>?</kbd> <span>단축키 도움말</span></div>

@@ -17,6 +17,9 @@
     if (mode === "my-prs") {
       return STATUS_COLORS[(pr as MyPR).reviewStatus];
     }
+    if (mode === "approved") {
+      return STATUS_COLORS["approved"];
+    }
     return STATUS_COLORS["pending"];
   }
 
