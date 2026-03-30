@@ -8,6 +8,7 @@ export const sortKey = writable<SortKey>("updatedAt");
 
 export type TabKey = "my-prs" | "review-requests";
 export const activeTab = writable<TabKey>("my-prs");
+export const focusedIndex = writable<number>(-1);
 
 type Filterable = MyPR | ReviewRequestedPR;
 

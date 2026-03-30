@@ -9,7 +9,8 @@
   import { relativeTime } from "$lib/utils";
   import { username, logout } from "$lib/stores/auth";
   import { loadSettings, showSettings } from "$lib/stores/settings";
-  import { activeTab } from "$lib/stores/filters";
+  import { activeTab, focusedIndex } from "$lib/stores/filters";
+  import { get } from "svelte/store";
   import { loadNotifications } from "$lib/notifications";
 
   let stopPolling: (() => void) | null = null;
@@ -42,7 +43,73 @@
     stopPolling?.();
     if (tickTimer) clearInterval(tickTimer);
   });
+
+  $effect(() => {
+    $activeTab;
+    focusedIndex.set(-1);
+  });
+
+  function handleKeydown(e: KeyboardEvent) {
+    const tag = document.activeElement?.tagName?.toLowerCase();
+    if (tag === "input" || tag === "textarea" || tag === "select") {
+      if (e.key === "Escape") {
+        (document.activeElement as HTMLElement).blur();
+        e.preventDefault();
+      }
+      return;
+    }
+
+    const currentTab = get(activeTab);
+    const prs = currentTab === "my-prs" ? get(filteredMyPRs) : get(filteredReviewRequestedPRs);
+    const maxIndex = prs.length - 1;
+
+    switch (e.key) {
+      case "j": {
+        const idx = get(focusedIndex);
+        focusedIndex.set(Math.min(idx + 1, maxIndex));
+        e.preventDefault();
+        break;
+      }
+      case "k": {
+        const idx = get(focusedIndex);
+        focusedIndex.set(Math.max(idx - 1, 0));
+        e.preventDefault();
+        break;
+      }
+      case "Enter": {
+        const idx = get(focusedIndex);
+        if (idx >= 0 && idx <= maxIndex) {
+          window.open(prs[idx].url, "_blank");
+          e.preventDefault();
+        }
+        break;
+      }
+      case "r":
+        fetchAll();
+        e.preventDefault();
+        break;
+      case "1":
+        activeTab.set("my-prs");
+        focusedIndex.set(-1);
+        e.preventDefault();
+        break;
+      case "2":
+        activeTab.set("review-requests");
+        focusedIndex.set(-1);
+        e.preventDefault();
+        break;
+      case "/":
+        document.querySelector<HTMLInputElement>(".search-input")?.focus();
+        e.preventDefault();
+        break;
+      case "Escape":
+        focusedIndex.set(-1);
+        break;
+    }
+  }
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="dashboard">
   <header class="title-bar">
