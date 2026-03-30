@@ -13,7 +13,8 @@ export function relativeTime(dateStr: string): string {
   const diffHr = Math.floor(diffMs / 3600000);
   const diffDay = Math.floor(diffMs / 86400000);
 
-  if (diffMin < 1) return "just now";
+  const diffSec = Math.floor(diffMs / 1000);
+  if (diffMin < 1) return `${diffSec}s ago`;
   if (diffHr < 1) return `${diffMin}m ago`;
   if (diffDay < 1) return `${diffHr}h ago`;
   return `${diffDay}d ago`;

@@ -38,7 +38,7 @@
     await loadSettings();
     loadNotifications();
     stopPolling = startPolling();
-    tickTimer = setInterval(() => { tick++; }, 60000);
+    tickTimer = setInterval(() => { tick++; }, 1000);
   });
 
   onDestroy(() => {

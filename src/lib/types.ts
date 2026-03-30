@@ -68,7 +68,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  pollingIntervalMinutes: 5,
+  pollingIntervalMinutes: 1,
   notifyOnNewReview: true,
   notifyOnReviewRequest: true,
 };

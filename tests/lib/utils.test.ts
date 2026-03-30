@@ -10,8 +10,8 @@ describe("relativeTime", () => {
     vi.useRealTimers();
   });
 
-  it("returns 'just now' for less than 1 minute ago", () => {
-    expect(relativeTime("2026-03-26T11:59:30Z")).toBe("just now");
+  it("returns seconds for less than 1 minute ago", () => {
+    expect(relativeTime("2026-03-26T11:59:30Z")).toBe("30s ago");
   });
 
   it("returns minutes for less than 1 hour ago", () => {
