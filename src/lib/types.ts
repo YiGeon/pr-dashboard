@@ -47,3 +47,14 @@ export const DEFAULT_SETTINGS: Settings = {
   notifyOnNewReview: true,
   notifyOnReviewRequest: true,
 };
+
+export interface AppNotification {
+  id: string;
+  type: "new_review" | "review_request";
+  prTitle: string;
+  prUrl: string;
+  actor: string;
+  reviewState?: ReviewState;
+  read: boolean;
+  createdAt: string;
+}
