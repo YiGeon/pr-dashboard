@@ -1,6 +1,8 @@
 import { writable, derived, get } from "svelte/store";
 import type { MyPR, ReviewRequestedPR, AppNotification } from "./types";
 import { settings } from "./stores/settings";
+import { activeTab, searchQuery } from "./stores/filters";
+import { showSettings } from "./stores/settings";
 
 export interface NewReviewEvent {
   prTitle: string;
@@ -83,6 +85,19 @@ export function markAllAsRead() {
   });
 }
 
+export const toastQueue = writable<AppNotification[]>([]);
+
+export function dismissToast(id: string) {
+  toastQueue.update((prev) => prev.filter((t) => t.id !== id));
+}
+
+export function navigateToNotification(notif: AppNotification) {
+  showSettings.set(false);
+  activeTab.set(notif.type === "new_review" ? "my-prs" : "review-requests");
+  searchQuery.set(notif.prTitle);
+  markAsRead(notif.id);
+}
+
 export function detectNewReviews(prev: MyPR[], curr: MyPR[]): NewReviewEvent[] {
   const events: NewReviewEvent[] = [];
   const prevMap = new Map(prev.map((pr) => [pr.id, pr]));
@@ -143,23 +158,55 @@ export async function checkAndNotify(
 
   const $settings = get(settings);
   const permitted = await requestNotificationPermission();
-  if (!permitted) return;
 
   if ($settings.notifyOnNewReview) {
     const newReviews = detectNewReviews(prevMyPRs, currMyPRs);
     for (const event of newReviews) {
-      new Notification(`New review: ${event.prTitle}`, {
-        body: `${event.reviewer} — ${event.state}`,
+      addNotification({
+        type: "new_review",
+        prTitle: event.prTitle,
+        prUrl: event.prUrl,
+        actor: event.reviewer,
+        reviewState: event.state,
       });
+      if (!document.hidden) {
+        toastQueue.update((q) => [...q, get(notifications)[0]]);
+      }
+      if (permitted) {
+        const n = new Notification(`New review: ${event.prTitle}`, {
+          body: `${event.reviewer} — ${event.state}`,
+        });
+        const notif = get(notifications)[0];
+        n.onclick = () => {
+          window.focus();
+          navigateToNotification(notif);
+        };
+      }
     }
   }
 
   if ($settings.notifyOnReviewRequest) {
     const newRequests = detectNewReviewRequests(prevReviewPRs, currReviewPRs);
     for (const event of newRequests) {
-      new Notification(`Review requested: ${event.prTitle}`, {
-        body: `from ${event.author}`,
+      addNotification({
+        type: "review_request",
+        prTitle: event.prTitle,
+        prUrl: event.prUrl,
+        actor: event.author,
       });
+      if (!document.hidden) {
+        toastQueue.update((q) => [...q, get(notifications)[0]]);
+      }
+      if (permitted) {
+        const n = new Notification(`Review requested: ${event.prTitle}`, {
+          body: `from ${event.author}`,
+        });
+        const notif = get(notifications)[0];
+        n.onclick = () => {
+          window.focus();
+          navigateToNotification(notif);
+        };
+      }
     }
   }
 }

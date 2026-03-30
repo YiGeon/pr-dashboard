@@ -11,9 +11,15 @@ import {
   NOTIFICATIONS_STORAGE_KEY,
   MAX_NOTIFICATIONS,
   TTL_MS,
+  navigateToNotification,
+  toastQueue,
+  dismissToast,
 } from "../../src/lib/notifications";
 import { get } from "svelte/store";
 import type { MyPR, ReviewRequestedPR, AppNotification } from "../../src/lib/types";
+import { activeTab } from "../../src/lib/stores/filters";
+import { showSettings } from "../../src/lib/stores/settings";
+import { searchQuery } from "../../src/lib/stores/filters";
 
 describe("detectNewReviews", () => {
   it("returns empty when no changes", () => {
@@ -164,5 +170,61 @@ describe("notification store", () => {
     localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(old));
     loadNotifications();
     expect(get(notifications)).toHaveLength(0);
+  });
+});
+
+describe("navigateToNotification", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    notifications.set([]);
+    activeTab.set("my-prs");
+    searchQuery.set("");
+    showSettings.set(false);
+  });
+
+  it("switches to my-prs tab for new_review type", () => {
+    const notif: AppNotification = {
+      id: "1", type: "new_review", prTitle: "fix: bug",
+      prUrl: "", actor: "kim", read: false, createdAt: new Date().toISOString(),
+    };
+    navigateToNotification(notif);
+    expect(get(activeTab)).toBe("my-prs");
+    expect(get(searchQuery)).toBe("fix: bug");
+    expect(get(showSettings)).toBe(false);
+  });
+
+  it("switches to review-requests tab for review_request type", () => {
+    showSettings.set(true);
+    const notif: AppNotification = {
+      id: "2", type: "review_request", prTitle: "feat: payment",
+      prUrl: "", actor: "hong", read: false, createdAt: new Date().toISOString(),
+    };
+    navigateToNotification(notif);
+    expect(get(activeTab)).toBe("review-requests");
+    expect(get(searchQuery)).toBe("feat: payment");
+    expect(get(showSettings)).toBe(false);
+  });
+
+  it("marks the notification as read", () => {
+    addNotification({ type: "new_review", prTitle: "test", prUrl: "", actor: "a" });
+    const notif = get(notifications)[0];
+    navigateToNotification(notif);
+    expect(get(notifications)[0].read).toBe(true);
+  });
+});
+
+describe("toastQueue", () => {
+  beforeEach(() => {
+    toastQueue.set([]);
+  });
+
+  it("dismissToast removes a toast by id", () => {
+    const notif: AppNotification = {
+      id: "t1", type: "new_review", prTitle: "test",
+      prUrl: "", actor: "a", read: false, createdAt: new Date().toISOString(),
+    };
+    toastQueue.set([notif]);
+    dismissToast("t1");
+    expect(get(toastQueue)).toHaveLength(0);
   });
 });
