@@ -7,6 +7,13 @@
 <div class="tab-bar">
   <button
     class="tab"
+    class:active={activeTab === "review-requests"}
+    onclick={() => (activeTab = "review-requests")}
+  >
+    Review Requests ({$reviewRequestedPRs.length})
+  </button>
+  <button
+    class="tab"
     class:active={activeTab === "my-prs"}
     onclick={() => (activeTab = "my-prs")}
   >
@@ -14,13 +21,6 @@
     {#if $urgentMyPRCount > 0}
       <span class="urgent-badge">{$urgentMyPRCount}</span>
     {/if}
-  </button>
-  <button
-    class="tab"
-    class:active={activeTab === "review-requests"}
-    onclick={() => (activeTab = "review-requests")}
-  >
-    Review Requests ({$reviewRequestedPRs.length})
   </button>
 </div>
 

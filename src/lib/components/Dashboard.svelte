@@ -89,12 +89,12 @@
         e.preventDefault();
         break;
       case "1":
-        activeTab.set("my-prs");
+        activeTab.set("review-requests");
         focusedIndex.set(-1);
         e.preventDefault();
         break;
       case "2":
-        activeTab.set("review-requests");
+        activeTab.set("my-prs");
         focusedIndex.set(-1);
         e.preventDefault();
         break;
