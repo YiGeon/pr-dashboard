@@ -23,7 +23,16 @@
     const target = e.target as HTMLInputElement;
     searchQuery.set(target.value);
   }
+
+  function handleClickOutside(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (!target.closest(".org-filter")) {
+      orgDropdownOpen = false;
+    }
+  }
 </script>
+
+<svelte:window onclick={handleClickOutside} />
 
 <div class="filter-bar">
   <div class="org-filter">
