@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { writable, derived, type Readable } from "svelte/store";
 import type { MyPR, ReviewRequestedPR, SortKey } from "../types";
 import { reviewStatusPriority } from "../utils";
 
@@ -25,6 +25,13 @@ export function applyFilters<T extends Filterable>(items: T[], orgs: string[], q
   }
 
   return result;
+}
+
+export function makeFilteredStore<T extends Filterable>(source: Readable<T[]>) {
+  return derived(
+    [source, selectedOrgs, searchQuery, sortKey],
+    ([$items, $orgs, $query, $sortKey]) => applySorting(applyFilters($items, $orgs, $query), $sortKey)
+  );
 }
 
 export function applySorting<T extends Filterable>(items: T[], key: SortKey): T[] {

@@ -10,8 +10,14 @@
   import { username, logout } from "$lib/stores/auth";
   import { loadSettings, showSettings } from "$lib/stores/settings";
   import { activeTab, focusedIndex } from "$lib/stores/filters";
-  import { get } from "svelte/store";
+  import { get, derived } from "svelte/store";
   import { loadNotifications } from "$lib/notifications";
+
+  const activePRs = derived(
+    [activeTab, filteredMyPRs, filteredReviewRequestedPRs, filteredApprovedPRs],
+    ([$tab, $my, $review, $approved]) =>
+      $tab === "my-prs" ? $my : $tab === "approved" ? $approved : $review
+  );
 
   let stopPolling: (() => void) | null = null;
   let tick = $state(0);
@@ -64,8 +70,7 @@
     const handledKeys = ["ArrowDown", "ArrowUp", "Enter", "r", "1", "2", "3", "/", "Escape", "?"];
     if (!handledKeys.includes(e.key)) return;
 
-    const currentTab = get(activeTab);
-    const prs = currentTab === "my-prs" ? get(filteredMyPRs) : currentTab === "approved" ? get(filteredApprovedPRs) : get(filteredReviewRequestedPRs);
+    const prs = get(activePRs);
     const maxIndex = prs.length - 1;
 
     switch (e.key) {
@@ -157,13 +162,7 @@
   {:else}
     <TabBar bind:activeTab={$activeTab} />
     <FilterBar />
-    {#if $activeTab === "my-prs"}
-      <PRList prs={$filteredMyPRs} mode="my-prs" />
-    {:else if $activeTab === "approved"}
-      <PRList prs={$filteredApprovedPRs} mode="approved" />
-    {:else}
-      <PRList prs={$filteredReviewRequestedPRs} mode="review-requests" />
-    {/if}
+    <PRList prs={$activePRs} mode={$activeTab} />
   {/if}
 </div>
 

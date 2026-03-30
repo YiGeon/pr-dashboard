@@ -2,8 +2,7 @@ import { writable, derived, get } from "svelte/store";
 import { fetchMyPRs, fetchReviewRequestedPRs, fetchApprovedPRs, fetchOrganizations } from "../github/client";
 import type { MyPR, ReviewRequestedPR } from "../types";
 import { settings } from "./settings";
-import { selectedOrgs, searchQuery, sortKey } from "./filters";
-import { applyFilters, applySorting } from "./filters";
+import { makeFilteredStore } from "./filters";
 import { checkAndNotify } from "../notifications";
 
 export const myPRs = writable<MyPR[]>([]);
@@ -19,29 +18,9 @@ export const urgentMyPRCount = derived(
   ($prs) => $prs.filter((pr) => pr.mergeable === "conflicting").length
 );
 
-export const filteredMyPRs = derived(
-  [myPRs, selectedOrgs, searchQuery, sortKey],
-  ([$myPRs, $orgs, $query, $sortKey]) => {
-    const filtered = applyFilters($myPRs, $orgs, $query);
-    return applySorting(filtered, $sortKey);
-  }
-);
-
-export const filteredReviewRequestedPRs = derived(
-  [reviewRequestedPRs, selectedOrgs, searchQuery, sortKey],
-  ([$prs, $orgs, $query, $sortKey]) => {
-    const filtered = applyFilters($prs, $orgs, $query);
-    return applySorting(filtered, $sortKey);
-  }
-);
-
-export const filteredApprovedPRs = derived(
-  [approvedPRs, selectedOrgs, searchQuery, sortKey],
-  ([$prs, $orgs, $query, $sortKey]) => {
-    const filtered = applyFilters($prs, $orgs, $query);
-    return applySorting(filtered, $sortKey);
-  }
-);
+export const filteredMyPRs = makeFilteredStore(myPRs);
+export const filteredReviewRequestedPRs = makeFilteredStore(reviewRequestedPRs);
+export const filteredApprovedPRs = makeFilteredStore(approvedPRs);
 
 let pollingTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -54,11 +33,13 @@ export async function fetchAll() {
       fetchOrganizations(),
     ]);
 
+    const allApproved = await fetchApprovedPRs();
     const reviewRequestedIds = new Set(reviewData.map((pr) => pr.id));
-    const approvedData = await fetchApprovedPRs(reviewRequestedIds);
+    const approvedData = allApproved.filter((pr) => !reviewRequestedIds.has(pr.id));
 
     const prevMyPRs = get(myPRs);
     const prevReviewPRs = get(reviewRequestedPRs);
+    const prevApproved = get(approvedPRs);
 
     myPRs.set(myPRData);
     reviewRequestedPRs.set(reviewData);
@@ -68,10 +49,11 @@ export async function fetchAll() {
 
     await checkAndNotify(prevMyPRs, myPRData, prevReviewPRs, reviewData);
 
-    const prevIds = new Set([...prevMyPRs.map(p => p.id), ...prevReviewPRs.map(p => p.id)]);
+    const prevIds = new Set([...prevMyPRs.map(p => p.id), ...prevReviewPRs.map(p => p.id), ...prevApproved.map(p => p.id)]);
     const currIds = new Set([...myPRData.map(p => p.id), ...reviewData.map(p => p.id), ...approvedData.map(p => p.id)]);
-    const changed = [...currIds].filter(id => !prevIds.has(id)).length +
-                    [...prevIds].filter(id => !currIds.has(id)).length;
+    let changed = 0;
+    for (const id of currIds) if (!prevIds.has(id)) changed++;
+    for (const id of prevIds) if (!currIds.has(id)) changed++;
     lastUpdateCount.set(changed > 0 ? changed : null);
   } catch (err) {
     console.error("Failed to fetch PRs:", err);
