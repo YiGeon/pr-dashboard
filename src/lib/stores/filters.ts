@@ -28,6 +28,7 @@ export function applyFilters<T extends Filterable>(items: T[], orgs: string[], q
 }
 
 export function applySorting<T extends Filterable>(items: T[], key: SortKey): T[] {
+  if (items.length < 2) return items;
   const sorted = [...items];
 
   switch (key) {

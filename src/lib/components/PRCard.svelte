@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { MyPR, ReviewRequestedPR, Label } from "$lib/types";
-  import { relativeTime, formatDate, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, labelTextColor } from "$lib/utils";
+  import type { TabKey } from "$lib/stores/filters";
+  import { relativeTime, formatDate, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, hexToRgb, labelTextColor } from "$lib/utils";
 
-  let { pr, mode, focused = false }: { pr: MyPR | ReviewRequestedPR; mode: "my-prs" | "review-requests"; focused?: boolean } = $props();
+  let { pr, mode, focused = false }: { pr: MyPR | ReviewRequestedPR; mode: TabKey; focused?: boolean } = $props();
 
   let cardEl: HTMLButtonElement;
 
@@ -24,13 +25,8 @@
   }
 
   function labelStyle(label: Label): string {
-    const r = parseInt(label.color.slice(0, 2), 16);
-    const g = parseInt(label.color.slice(2, 4), 16);
-    const b = parseInt(label.color.slice(4, 6), 16);
-    const bg = `rgba(${r}, ${g}, ${b}, 0.2)`;
-    const border = `rgba(${r}, ${g}, ${b}, 0.3)`;
-    const text = labelTextColor(label.color);
-    return `background: ${bg}; border-color: ${border}; color: ${text}`;
+    const [r, g, b] = hexToRgb(label.color);
+    return `background: rgba(${r},${g},${b},0.2); border-color: rgba(${r},${g},${b},0.3); color: ${labelTextColor(label.color)}`;
   }
 </script>
 

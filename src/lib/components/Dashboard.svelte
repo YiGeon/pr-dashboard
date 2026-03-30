@@ -60,6 +60,9 @@
       return;
     }
 
+    const handledKeys = ["ArrowDown", "ArrowUp", "Enter", "r", "1", "2", "/", "Escape", "?"];
+    if (!handledKeys.includes(e.key)) return;
+
     const currentTab = get(activeTab);
     const prs = currentTab === "my-prs" ? get(filteredMyPRs) : get(filteredReviewRequestedPRs);
     const maxIndex = prs.length - 1;
@@ -160,8 +163,10 @@
 <Toast />
 
 {#if showShortcuts}
-  <div class="shortcuts-overlay" onclick={() => (showShortcuts = false)}>
-    <div class="shortcuts-modal" onclick={(e) => e.stopPropagation()}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <div class="shortcuts-overlay" role="presentation" onclick={() => (showShortcuts = false)}>
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div class="shortcuts-modal" role="dialog" tabindex="-1" onclick={(e) => e.stopPropagation()}>
       <div class="shortcuts-header">
         <h3>Keyboard Shortcuts</h3>
         <button class="shortcuts-close" onclick={() => (showShortcuts = false)}>Esc</button>

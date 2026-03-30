@@ -109,16 +109,15 @@ export function parseMyPRs(data: any): MyPR[] {
   return data.search.nodes
     .filter((node: any) => node.id)
     .map((node: any) => {
-      const reviews: Review[] = (node.reviews?.nodes ?? []).map((r: any) => ({
+      const rawNodes = node.reviews?.nodes ?? [];
+      const mapped = rawNodes.map((r: any) => ({
         author: r.author?.login ?? "unknown",
-        state: normalizeReviewState(r.state),
-        submittedAt: r.submittedAt,
+        state: r.state as string,
+        submittedAt: r.submittedAt as string,
       }));
-
-      const rawReviews = (node.reviews?.nodes ?? []).map((r: any) => ({
-        author: r.author?.login ?? "unknown",
-        state: r.state,
-        submittedAt: r.submittedAt,
+      const reviews: Review[] = mapped.map((r: { author: string; state: string; submittedAt: string }) => ({
+        ...r,
+        state: normalizeReviewState(r.state),
       }));
 
       const commitNode = node.commits?.nodes?.[0]?.commit;
@@ -134,7 +133,7 @@ export function parseMyPRs(data: any): MyPR[] {
         createdAt: node.createdAt,
         updatedAt: node.updatedAt,
         reviews,
-        reviewStatus: computeReviewStatus(rawReviews),
+        reviewStatus: computeReviewStatus(mapped),
         ciStatus,
         baseRef: node.baseRefName ?? "main",
         labels: (node.labels?.nodes ?? []).map((l: any) => ({ name: l.name, color: l.color })),

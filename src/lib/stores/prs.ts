@@ -13,11 +13,6 @@ export const isLoading = writable(false);
 export const lastFetchedAt = writable<string | null>(null);
 export const lastUpdateCount = writable<number | null>(null);
 
-export const pendingReviewCount = derived(
-  reviewRequestedPRs,
-  ($prs) => $prs.length
-);
-
 export const urgentMyPRCount = derived(
   myPRs,
   ($prs) => $prs.filter((pr) => pr.mergeable === "conflicting").length
