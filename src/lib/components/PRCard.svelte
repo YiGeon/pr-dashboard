@@ -56,9 +56,9 @@
       </div>
     {:else}
       <div class="my-review-status">
-        {STATUS_ICONS[(pr as ReviewRequestedPR).myReviewStatus]}
-        Re-review requested
         {#if (pr as ReviewRequestedPR).previousReviewStatus}
+          {STATUS_ICONS[(pr as ReviewRequestedPR).myReviewStatus]}
+          Re-review requested
           <span class="previous-review">
             (prev: {STATUS_ICONS[(pr as ReviewRequestedPR).previousReviewStatus!]}
             {#if (pr as ReviewRequestedPR).previousReviewStatus === "approved"}
@@ -69,6 +69,9 @@
               Commented
             {/if})
           </span>
+        {:else}
+          {STATUS_ICONS[(pr as ReviewRequestedPR).myReviewStatus]}
+          Not reviewed
         {/if}
       </div>
     {/if}
