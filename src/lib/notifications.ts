@@ -1,9 +1,4 @@
 import { get } from "svelte/store";
-import {
-  isPermissionGranted,
-  requestPermission,
-  sendNotification,
-} from "@tauri-apps/plugin-notification";
 import type { MyPR, ReviewRequestedPR } from "./types";
 import { settings } from "./stores/settings";
 
@@ -62,6 +57,14 @@ export function detectNewReviewRequests(
     }));
 }
 
+async function requestNotificationPermission(): Promise<boolean> {
+  if (!("Notification" in window)) return false;
+  if (Notification.permission === "granted") return true;
+  if (Notification.permission === "denied") return false;
+  const result = await Notification.requestPermission();
+  return result === "granted";
+}
+
 export async function checkAndNotify(
   prevMyPRs: MyPR[],
   currMyPRs: MyPR[],
@@ -71,18 +74,13 @@ export async function checkAndNotify(
   if (prevMyPRs.length === 0 && prevReviewPRs.length === 0) return;
 
   const $settings = get(settings);
-  let permitted = await isPermissionGranted();
-  if (!permitted) {
-    const result = await requestPermission();
-    permitted = result === "granted";
-  }
+  const permitted = await requestNotificationPermission();
   if (!permitted) return;
 
   if ($settings.notifyOnNewReview) {
     const newReviews = detectNewReviews(prevMyPRs, currMyPRs);
     for (const event of newReviews) {
-      sendNotification({
-        title: `New review: ${event.prTitle}`,
+      new Notification(`New review: ${event.prTitle}`, {
         body: `${event.reviewer} — ${event.state}`,
       });
     }
@@ -91,8 +89,7 @@ export async function checkAndNotify(
   if ($settings.notifyOnReviewRequest) {
     const newRequests = detectNewReviewRequests(prevReviewPRs, currReviewPRs);
     for (const event of newRequests) {
-      sendNotification({
-        title: `Review requested: ${event.prTitle}`,
+      new Notification(`Review requested: ${event.prTitle}`, {
         body: `from ${event.author}`,
       });
     }

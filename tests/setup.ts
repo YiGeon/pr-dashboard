@@ -1,27 +1,27 @@
 import { vi } from "vitest";
 
-// Tauri API를 mock하여 Node.js 환경에서 테스트 가능하게 함
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
-}));
+// Mock browser APIs for Node.js test environment
 
-vi.mock("@tauri-apps/plugin-store", () => {
-  const store = new Map<string, unknown>();
-  return {
-    load: vi.fn(async () => ({
-      get: vi.fn(async (key: string) => store.get(key)),
-      set: vi.fn(async (key: string, value: unknown) => { store.set(key, value); }),
-      save: vi.fn(),
-    })),
-  };
+// localStorage mock
+const store = new Map<string, string>();
+Object.defineProperty(globalThis, "localStorage", {
+  value: {
+    getItem: vi.fn((key: string) => store.get(key) ?? null),
+    setItem: vi.fn((key: string, value: string) => { store.set(key, value); }),
+    removeItem: vi.fn((key: string) => { store.delete(key); }),
+    clear: vi.fn(() => { store.clear(); }),
+  },
 });
 
-vi.mock("@tauri-apps/plugin-shell", () => ({
-  open: vi.fn(),
-}));
-
-vi.mock("@tauri-apps/plugin-notification", () => ({
-  sendNotification: vi.fn(),
-  isPermissionGranted: vi.fn(async () => true),
-  requestPermission: vi.fn(async () => "granted"),
-}));
+// Notification API mock
+Object.defineProperty(globalThis, "Notification", {
+  value: vi.fn(),
+  writable: true,
+});
+Object.defineProperty(globalThis.Notification, "permission", {
+  value: "granted",
+  writable: true,
+});
+Object.defineProperty(globalThis.Notification, "requestPermission", {
+  value: vi.fn(async () => "granted"),
+});

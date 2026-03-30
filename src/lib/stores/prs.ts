@@ -1,5 +1,4 @@
 import { writable, derived, get } from "svelte/store";
-import { invoke } from "@tauri-apps/api/core";
 import { fetchMyPRs, fetchReviewRequestedPRs, fetchOrganizations } from "../github/client";
 import type { MyPR, ReviewRequestedPR } from "../types";
 import { settings } from "./settings";
@@ -54,8 +53,6 @@ export async function fetchAll() {
     lastFetchedAt.set(new Date().toISOString());
 
     await checkAndNotify(prevMyPRs, myPRData, prevReviewPRs, reviewData);
-
-    updateTrayBadge();
   } catch (err) {
     console.error("Failed to fetch PRs:", err);
   } finally {
@@ -83,15 +80,4 @@ export function stopPolling() {
     clearInterval(pollingTimer);
     pollingTimer = null;
   }
-}
-
-export function updateTrayBadge() {
-  const $settings = get(settings);
-  if (!$settings.trayShowCount) {
-    invoke("update_tray_title", { title: "" }).catch(() => {});
-    return;
-  }
-  const pending = get(reviewRequestedPRs).filter((pr) => pr.myReviewStatus === "pending").length;
-  const title = pending > 0 ? `${pending}` : "";
-  invoke("update_tray_title", { title }).catch(() => {});
 }

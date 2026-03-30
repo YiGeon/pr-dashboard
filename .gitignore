@@ -6,8 +6,9 @@
 node_modules/
 
 # Build output
-dist/
-target/
+.svelte-kit/
+.vercel/
+build/
 
 # IDE
 .vscode/
@@ -23,3 +24,4 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+.vercel

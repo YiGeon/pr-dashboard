@@ -40,16 +40,10 @@ export interface Settings {
   pollingIntervalMinutes: number;
   notifyOnNewReview: boolean;
   notifyOnReviewRequest: boolean;
-  autoStart: boolean;
-  closeToTray: boolean;
-  trayShowCount: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   pollingIntervalMinutes: 5,
   notifyOnNewReview: true,
   notifyOnReviewRequest: true,
-  autoStart: false,
-  closeToTray: true,
-  trayShowCount: true,
 };
