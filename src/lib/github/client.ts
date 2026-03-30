@@ -28,31 +28,38 @@ export function getUsername(): string {
   return currentUsername;
 }
 
-export async function fetchMyPRs(): Promise<MyPR[]> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function fetchAllPages(query: string, searchQuery: string): Promise<any[]> {
   if (!graphqlClient) throw new Error("Client not initialized");
   if (!currentUsername) await fetchUsername();
-  const data = await graphqlClient(MY_PRS_QUERY, {
-    searchQuery: `is:pr is:open author:${currentUsername}`,
-  });
-  return parseMyPRs(data);
+
+  const allNodes: any[] = [];
+  let after: string | null = null;
+
+  do {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data: any = await graphqlClient(query, { searchQuery, after });
+    const { nodes, pageInfo } = data.search;
+    allNodes.push(...nodes);
+    after = pageInfo.hasNextPage ? pageInfo.endCursor : null;
+  } while (after);
+
+  return allNodes;
+}
+
+export async function fetchMyPRs(): Promise<MyPR[]> {
+  const nodes = await fetchAllPages(MY_PRS_QUERY, `is:pr is:open author:${currentUsername}`);
+  return parseMyPRs({ search: { nodes } });
 }
 
 export async function fetchReviewRequestedPRs(): Promise<ReviewRequestedPR[]> {
-  if (!graphqlClient) throw new Error("Client not initialized");
-  if (!currentUsername) await fetchUsername();
-  const data = await graphqlClient(REVIEW_REQUESTED_QUERY, {
-    searchQuery: `is:pr is:open review-requested:${currentUsername}`,
-  });
-  return parseReviewRequestedPRs(data, currentUsername);
+  const nodes = await fetchAllPages(REVIEW_REQUESTED_QUERY, `is:pr is:open review-requested:${currentUsername}`);
+  return parseReviewRequestedPRs({ search: { nodes } }, currentUsername);
 }
 
 export async function fetchApprovedPRs(): Promise<ReviewRequestedPR[]> {
-  if (!graphqlClient) throw new Error("Client not initialized");
-  if (!currentUsername) await fetchUsername();
-  const data = await graphqlClient(REVIEW_REQUESTED_QUERY, {
-    searchQuery: `is:pr is:open reviewed-by:${currentUsername} -author:${currentUsername}`,
-  });
-  return parseReviewRequestedPRs(data, currentUsername, false)
+  const nodes = await fetchAllPages(REVIEW_REQUESTED_QUERY, `is:pr is:open reviewed-by:${currentUsername} -author:${currentUsername}`);
+  return parseReviewRequestedPRs({ search: { nodes } }, currentUsername, false)
     .filter((pr) => pr.myReviewStatus === "approved");
 }
 

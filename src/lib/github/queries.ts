@@ -2,8 +2,9 @@ import type { MyPR, ReviewRequestedPR, Review, ReviewState, CIStatus, MergeableS
 import { computeReviewStatus } from "../utils";
 
 export const MY_PRS_QUERY = `
-  query($searchQuery: String!) {
-    search(query: $searchQuery, type: ISSUE, first: 50) {
+  query($searchQuery: String!, $after: String) {
+    search(query: $searchQuery, type: ISSUE, first: 50, after: $after) {
+      pageInfo { hasNextPage endCursor }
       nodes {
         ... on PullRequest {
           id
@@ -37,8 +38,9 @@ export const MY_PRS_QUERY = `
 `;
 
 export const REVIEW_REQUESTED_QUERY = `
-  query($searchQuery: String!) {
-    search(query: $searchQuery, type: ISSUE, first: 50) {
+  query($searchQuery: String!, $after: String) {
+    search(query: $searchQuery, type: ISSUE, first: 50, after: $after) {
+      pageInfo { hasNextPage endCursor }
       nodes {
         ... on PullRequest {
           id
