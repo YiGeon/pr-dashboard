@@ -64,13 +64,13 @@
     const maxIndex = prs.length - 1;
 
     switch (e.key) {
-      case "j": {
+      case "ArrowDown": {
         const idx = get(focusedIndex);
         focusedIndex.set(Math.min(idx + 1, maxIndex));
         e.preventDefault();
         break;
       }
-      case "k": {
+      case "ArrowUp": {
         const idx = get(focusedIndex);
         focusedIndex.set(Math.max(idx - 1, 0));
         e.preventDefault();
