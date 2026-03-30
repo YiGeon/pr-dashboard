@@ -3,15 +3,19 @@
   import TabBar from "./TabBar.svelte";
   import FilterBar from "./FilterBar.svelte";
   import PRList from "./PRList.svelte";
+  import Toast from "./Toast.svelte";
+  import NotificationBell from "./NotificationBell.svelte";
   import { filteredMyPRs, filteredReviewRequestedPRs, isLoading, startPolling, fetchAll } from "$lib/stores/prs";
   import { username, logout } from "$lib/stores/auth";
   import { loadSettings, showSettings } from "$lib/stores/settings";
   import { activeTab } from "$lib/stores/filters";
+  import { loadNotifications } from "$lib/notifications";
 
   let stopPolling: (() => void) | null = null;
 
   onMount(async () => {
     await loadSettings();
+    loadNotifications();
     stopPolling = startPolling();
   });
 
@@ -28,6 +32,7 @@
       <button class="icon-btn" onclick={fetchAll} disabled={$isLoading} title="Refresh">
         <span class:spinning={$isLoading}>↻</span>
       </button>
+      <NotificationBell />
       <button class="icon-btn" onclick={() => showSettings.update(v => !v)} title="Settings">
         ⚙️
       </button>
@@ -48,6 +53,8 @@
     {/if}
   {/if}
 </div>
+
+<Toast />
 
 <style>
   .dashboard {
