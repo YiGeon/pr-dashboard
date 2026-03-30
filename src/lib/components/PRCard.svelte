@@ -8,8 +8,7 @@
     if (mode === "my-prs") {
       return STATUS_COLORS[(pr as MyPR).reviewStatus];
     }
-    const prev = (pr as ReviewRequestedPR).previousReviewStatus;
-    return STATUS_COLORS[prev ?? "pending"];
+    return STATUS_COLORS["pending"];
   }
 
   function handleClick() {
