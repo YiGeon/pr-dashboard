@@ -154,7 +154,7 @@
   }
 
   .pr-title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: #ffffff;
     overflow: hidden;
@@ -255,6 +255,7 @@
     font-size: 11px;
     color: #8b949e;
     margin-top: 0.5rem;
+    opacity: 0.8;
   }
 
   .merge-status {
