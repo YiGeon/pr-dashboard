@@ -266,6 +266,9 @@
     font-size: 11px;
     color: #656d76;
     margin-right: 0.25rem;
+    min-width: 4.5em;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
   }
 
   .feedback-msg {
