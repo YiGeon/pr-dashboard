@@ -68,9 +68,10 @@
   .filter-bar {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
     background: #0d1117;
+    border-bottom: 1px solid #21262d;
   }
 
   .org-filter {
@@ -83,7 +84,7 @@
     border: 1px solid #30363d;
     padding: 0.375rem 0.75rem;
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: 0.875rem;
     cursor: pointer;
     transition: border-color 0.15s;
   }
@@ -112,7 +113,7 @@
     gap: 0.5rem;
     padding: 0.375rem 0.5rem;
     color: #c9d1d9;
-    font-size: 0.8rem;
+    font-size: 0.875rem;
     cursor: pointer;
     border-radius: 4px;
   }
@@ -123,7 +124,7 @@
 
   .dropdown-empty {
     color: #8b949e;
-    font-size: 0.8rem;
+    font-size: 0.875rem;
     padding: 0.375rem 0.5rem;
   }
 
@@ -133,8 +134,9 @@
     border: 1px solid #30363d;
     padding: 0.375rem 0.75rem;
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: 0.875rem;
     flex: 1;
+    max-width: 480px;
     min-width: 0;
     transition: border-color 0.15s, box-shadow 0.15s;
   }
@@ -146,6 +148,6 @@
   }
 
   .search-input::placeholder {
-    color: #484f58;
+    color: #8b949e;
   }
 </style>

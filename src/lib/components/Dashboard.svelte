@@ -69,8 +69,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1.25rem;
-    height: 48px;
+    padding: 0 1.5rem;
+    height: 56px;
     background: #161b22;
     border-bottom: 1px solid #30363d;
     -webkit-app-region: drag;
@@ -78,7 +78,7 @@
 
   .app-title {
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 1.125rem;
     color: #e6edf3;
     letter-spacing: -0.01em;
   }

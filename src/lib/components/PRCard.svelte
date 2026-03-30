@@ -79,7 +79,7 @@
     border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    transition: all 0.2s ease;
     width: 100%;
     text-align: left;
     padding: 0;
@@ -88,47 +88,51 @@
   }
 
   .pr-card:hover {
-    border-color: #484f58;
+    border-color: #58a6ff;
     background: #1c2129;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transform: translateY(-1px);
   }
 
   .status-bar {
-    width: 3px;
+    width: 4px;
     flex-shrink: 0;
+    border-radius: 4px 0 0 4px;
   }
 
   .card-content {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.25rem;
     flex: 1;
     min-width: 0;
   }
 
   .card-header {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.375rem;
   }
 
   .pr-title {
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: #e6edf3;
+    color: #ffffff;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     line-height: 1.4;
+    display: block;
   }
 
   .card-meta {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
+    gap: 0.625rem;
+    font-size: 0.8125rem;
     color: #8b949e;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
   }
 
   .card-meta .repo {
-    color: #7d8590;
+    color: #8b949e;
+    font-weight: 500;
   }
 
   .card-meta .time {
@@ -138,21 +142,39 @@
   .reviewers, .my-review-status {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.375rem;
+    gap: 0.5rem;
     font-size: 0.75rem;
     color: #c9d1d9;
+    align-items: center;
+  }
+
+  .my-review-status {
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.25rem 0.625rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-flex;
   }
 
   .reviewer {
-    background: rgba(255, 255, 255, 0.04);
-    padding: 0.125rem 0.5rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.25rem 0.625rem;
     border-radius: 12px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
   }
 
   .no-reviews {
-    color: #3d444d;
+    color: #6e7681;
     font-size: 0.75rem;
     font-style: italic;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.25rem 0.625rem;
+    border-radius: 12px;
   }
 </style>
