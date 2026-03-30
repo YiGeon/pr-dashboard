@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { applyFilters, applySorting } from "../../../src/lib/stores/filters";
+import { urgentMyPRCount } from "../../../src/lib/stores/prs";
+import { get } from "svelte/store";
 import type { MyPR, SortKey } from "../../../src/lib/types";
 
 const MOCK_MY_PRS: MyPR[] = [
@@ -22,6 +24,18 @@ const MOCK_MY_PRS: MyPR[] = [
     baseRef: "main", labels: [], unresolvedThreads: 0, additions: 0, deletions: 0, changedFiles: 0, isDraft: false, mergeable: "mergeable" as const,
   },
 ];
+
+describe("urgentMyPRCount", () => {
+  it("counts PRs with conflict or CI failure", async () => {
+    const { myPRs } = await import("../../../src/lib/stores/prs");
+    myPRs.set([
+      { ...MOCK_MY_PRS[0], mergeable: "conflicting", ciStatus: "success" },
+      { ...MOCK_MY_PRS[1], mergeable: "mergeable", ciStatus: "failure" },
+      { ...MOCK_MY_PRS[2], mergeable: "mergeable", ciStatus: "success" },
+    ]);
+    expect(get(urgentMyPRCount)).toBe(2);
+  });
+});
 
 describe("applyFilters", () => {
   it("returns all when no filters applied", () => {

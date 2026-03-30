@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { myPRs, reviewRequestedPRs } from "$lib/stores/prs";
+  import { myPRs, reviewRequestedPRs, urgentMyPRCount } from "$lib/stores/prs";
 
   let { activeTab = $bindable("my-prs") }: { activeTab: "my-prs" | "review-requests" } = $props();
 </script>
@@ -11,6 +11,9 @@
     onclick={() => (activeTab = "my-prs")}
   >
     My PRs ({$myPRs.length})
+    {#if $urgentMyPRCount > 0}
+      <span class="urgent-badge">{$urgentMyPRCount}</span>
+    {/if}
   </button>
   <button
     class="tab"
@@ -53,5 +56,20 @@
     border-color: #30363d;
     font-weight: 600;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .urgent-badge {
+    background: #da3633;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    margin-left: 4px;
   }
 </style>

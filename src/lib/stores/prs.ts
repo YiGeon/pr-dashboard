@@ -18,6 +18,11 @@ export const pendingReviewCount = derived(
   ($prs) => $prs.length
 );
 
+export const urgentMyPRCount = derived(
+  myPRs,
+  ($prs) => $prs.filter((pr) => pr.mergeable === "conflicting" || pr.ciStatus === "failure").length
+);
+
 export const filteredMyPRs = derived(
   [myPRs, selectedOrgs, searchQuery, sortKey],
   ([$myPRs, $orgs, $query, $sortKey]) => {
