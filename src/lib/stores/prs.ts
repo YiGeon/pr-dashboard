@@ -11,6 +11,7 @@ export const reviewRequestedPRs = writable<ReviewRequestedPR[]>([]);
 export const organizations = writable<string[]>([]);
 export const isLoading = writable(false);
 export const lastFetchedAt = writable<string | null>(null);
+export const lastUpdateCount = writable<number | null>(null);
 
 export const pendingReviewCount = derived(
   reviewRequestedPRs,
@@ -53,6 +54,12 @@ export async function fetchAll() {
     lastFetchedAt.set(new Date().toISOString());
 
     await checkAndNotify(prevMyPRs, myPRData, prevReviewPRs, reviewData);
+
+    const prevIds = new Set([...prevMyPRs.map(p => p.id), ...prevReviewPRs.map(p => p.id)]);
+    const currIds = new Set([...myPRData.map(p => p.id), ...reviewData.map(p => p.id)]);
+    const changed = [...currIds].filter(id => !prevIds.has(id)).length +
+                    [...prevIds].filter(id => !currIds.has(id)).length;
+    lastUpdateCount.set(changed > 0 ? changed : null);
   } catch (err) {
     console.error("Failed to fetch PRs:", err);
   } finally {
