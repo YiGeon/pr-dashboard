@@ -43,7 +43,7 @@ export async function fetchReviewRequestedPRs(): Promise<ReviewRequestedPR[]> {
   const data = await graphqlClient(REVIEW_REQUESTED_QUERY, {
     searchQuery: `is:pr is:open review-requested:${currentUsername}`,
   });
-  return parseReviewRequestedPRs(data, currentUsername);
+  return parseReviewRequestedPRs(data);
 }
 
 export async function fetchOrganizations(): Promise<string[]> {

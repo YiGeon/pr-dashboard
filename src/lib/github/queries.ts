@@ -36,9 +36,6 @@ export const REVIEW_REQUESTED_QUERY = `
           author { login }
           createdAt
           updatedAt
-          reviews(last: 20) {
-            nodes { author { login } state submittedAt }
-          }
         }
       }
     }
@@ -105,22 +102,10 @@ export function parseMyPRs(data: any): MyPR[] {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseReviewRequestedPRs(data: any, username: string): ReviewRequestedPR[] {
+export function parseReviewRequestedPRs(data: any): ReviewRequestedPR[] {
   return data.search.nodes
     .filter((node: any) => node.id)
     .map((node: any) => {
-      const myReviews = (node.reviews?.nodes ?? [])
-        .filter((r: any) => r.author?.login === username)
-        .map((r: any) => ({
-          author: r.author.login,
-          state: r.state,
-          submittedAt: r.submittedAt,
-        }));
-
-      const myLatest = myReviews.sort(
-        (a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
-      )[0];
-
       return {
         id: node.id,
         title: node.title,
@@ -130,7 +115,7 @@ export function parseReviewRequestedPRs(data: any, username: string): ReviewRequ
         author: node.author?.login ?? "unknown",
         createdAt: node.createdAt,
         updatedAt: node.updatedAt,
-        myReviewStatus: myLatest ? normalizeReviewState(myLatest.state) : "pending",
+        myReviewStatus: "pending" as ReviewState,
       };
     });
 }
