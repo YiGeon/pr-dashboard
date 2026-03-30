@@ -110,6 +110,7 @@
 <style>
   .pr-card {
     display: flex;
+    flex-shrink: 0;
     background: #161b22;
     border: 1px solid #30363d;
     border-radius: 8px;
