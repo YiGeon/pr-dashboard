@@ -148,7 +148,7 @@ export function parseMyPRs(data: any): MyPR[] {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseReviewRequestedPRs(data: any, username: string): ReviewRequestedPR[] {
+export function parseReviewRequestedPRs(data: any, username: string, forcePending: boolean = true): ReviewRequestedPR[] {
   return data.search.nodes
     .filter((node: any) => node.id)
     .map((node: any) => {
@@ -184,6 +184,8 @@ export function parseReviewRequestedPRs(data: any, username: string): ReviewRequ
       const commitNode = node.commits?.nodes?.[0]?.commit;
       const ciStatus = normalizeCIStatus(commitNode?.statusCheckRollup ?? null);
 
+      const myLatestState = myLatest ? normalizeReviewState(myLatest.state) : null;
+
       return {
         id: node.id,
         title: node.title,
@@ -193,8 +195,8 @@ export function parseReviewRequestedPRs(data: any, username: string): ReviewRequ
         author: node.author?.login ?? "unknown",
         createdAt: node.createdAt,
         updatedAt: node.updatedAt,
-        myReviewStatus: "pending" as ReviewState,
-        previousReviewStatus: myLatest ? normalizeReviewState(myLatest.state) : null,
+        myReviewStatus: forcePending ? ("pending" as ReviewState) : (myLatestState ?? ("pending" as ReviewState)),
+        previousReviewStatus: forcePending ? myLatestState : null,
         reviews: [...latestByAuthor.values()],
         baseRef: node.baseRefName ?? "main",
         labels: (node.labels?.nodes ?? []).map((l: any) => ({ name: l.name, color: l.color })),
