@@ -7,16 +7,19 @@ const MOCK_MY_PRS: MyPR[] = [
     id: "1", title: "fix: login bug", url: "", repo: "company/backend", org: "company",
     state: "open", createdAt: "2026-03-24T10:00:00Z", updatedAt: "2026-03-26T10:00:00Z",
     reviews: [], reviewStatus: "changes_requested", ciStatus: null,
+    baseRef: "main", labels: [], unresolvedThreads: 0, additions: 0, deletions: 0, changedFiles: 0, isDraft: false, mergeable: "mergeable" as const,
   },
   {
     id: "2", title: "feat: profile page", url: "", repo: "personal/frontend", org: "personal",
     state: "open", createdAt: "2026-03-25T10:00:00Z", updatedAt: "2026-03-25T05:00:00Z",
     reviews: [], reviewStatus: "approved", ciStatus: "success",
+    baseRef: "main", labels: [], unresolvedThreads: 0, additions: 0, deletions: 0, changedFiles: 0, isDraft: false, mergeable: "mergeable" as const,
   },
   {
     id: "3", title: "chore: CI pipeline", url: "", repo: "company/infra", org: "company",
     state: "open", createdAt: "2026-03-23T10:00:00Z", updatedAt: "2026-03-26T08:00:00Z",
     reviews: [], reviewStatus: "pending", ciStatus: "pending",
+    baseRef: "main", labels: [], unresolvedThreads: 0, additions: 0, deletions: 0, changedFiles: 0, isDraft: false, mergeable: "mergeable" as const,
   },
 ];
 
