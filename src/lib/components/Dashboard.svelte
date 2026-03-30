@@ -5,10 +5,9 @@
   import PRList from "./PRList.svelte";
   import { filteredMyPRs, filteredReviewRequestedPRs, isLoading, startPolling, fetchAll } from "$lib/stores/prs";
   import { username, logout } from "$lib/stores/auth";
-  import { loadSettings } from "$lib/stores/settings";
+  import { loadSettings, showSettings } from "$lib/stores/settings";
+  import { activeTab } from "$lib/stores/filters";
 
-  let activeTab: "my-prs" | "review-requests" = $state("my-prs");
-  let showSettings = $state(false);
   let stopPolling: (() => void) | null = null;
 
   onMount(async () => {
@@ -29,20 +28,20 @@
       <button class="icon-btn" onclick={fetchAll} disabled={$isLoading} title="Refresh">
         <span class:spinning={$isLoading}>↻</span>
       </button>
-      <button class="icon-btn" onclick={() => (showSettings = !showSettings)} title="Settings">
+      <button class="icon-btn" onclick={() => showSettings.update(v => !v)} title="Settings">
         ⚙️
       </button>
     </div>
   </header>
 
-  {#if showSettings}
+  {#if $showSettings}
     {#await import("./Settings.svelte") then { default: Settings }}
-      <Settings onclose={() => (showSettings = false)} />
+      <Settings onclose={() => showSettings.set(false)} />
     {/await}
   {:else}
-    <TabBar bind:activeTab />
+    <TabBar bind:activeTab={$activeTab} />
     <FilterBar />
-    {#if activeTab === "my-prs"}
+    {#if $activeTab === "my-prs"}
       <PRList prs={$filteredMyPRs} mode="my-prs" />
     {:else}
       <PRList prs={$filteredReviewRequestedPRs} mode="review-requests" />

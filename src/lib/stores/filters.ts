@@ -6,6 +6,9 @@ export const selectedOrgs = writable<string[]>([]);
 export const searchQuery = writable("");
 export const sortKey = writable<SortKey>("updatedAt");
 
+export type TabKey = "my-prs" | "review-requests";
+export const activeTab = writable<TabKey>("my-prs");
+
 type Filterable = MyPR | ReviewRequestedPR;
 
 export function applyFilters<T extends Filterable>(items: T[], orgs: string[], query: string): T[] {

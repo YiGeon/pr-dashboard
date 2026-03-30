@@ -3,6 +3,8 @@ import { type Settings, DEFAULT_SETTINGS } from "../types";
 
 export const settings = writable<Settings>({ ...DEFAULT_SETTINGS });
 
+export const showSettings = writable(false);
+
 const STORAGE_KEY = "app_settings";
 
 export async function loadSettings() {
