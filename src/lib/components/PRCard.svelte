@@ -2,7 +2,15 @@
   import type { MyPR, ReviewRequestedPR, Label } from "$lib/types";
   import { relativeTime, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, labelTextColor } from "$lib/utils";
 
-  let { pr, mode }: { pr: MyPR | ReviewRequestedPR; mode: "my-prs" | "review-requests" } = $props();
+  let { pr, mode, focused = false }: { pr: MyPR | ReviewRequestedPR; mode: "my-prs" | "review-requests"; focused?: boolean } = $props();
+
+  let cardEl: HTMLButtonElement;
+
+  $effect(() => {
+    if (focused && cardEl) {
+      cardEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  });
 
   function getBarColor(): string {
     if (mode === "my-prs") {
@@ -26,7 +34,7 @@
   }
 </script>
 
-<button class="pr-card" onclick={handleClick}>
+<button class="pr-card" class:focused onclick={handleClick} bind:this={cardEl}>
   <div class="status-bar" style="background: {getBarColor()}"></div>
   <div class="card-content">
     <div class="card-header">
@@ -125,6 +133,11 @@
     padding: 0;
     font: inherit;
     color: inherit;
+  }
+
+  .pr-card.focused {
+    border-color: #58a6ff;
+    box-shadow: 0 0 0 1px #58a6ff;
   }
 
   .pr-card:hover {

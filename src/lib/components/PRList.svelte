@@ -2,7 +2,7 @@
   import PRCard from "./PRCard.svelte";
   import type { MyPR, ReviewRequestedPR } from "$lib/types";
   import { isLoading, myPRs, reviewRequestedPRs } from "$lib/stores/prs";
-  import { selectedOrgs, searchQuery } from "$lib/stores/filters";
+  import { selectedOrgs, searchQuery, focusedIndex } from "$lib/stores/filters";
 
   let { prs, mode }: { prs: (MyPR | ReviewRequestedPR)[]; mode: "my-prs" | "review-requests" } = $props();
 
@@ -31,8 +31,8 @@
       </div>
     {/each}
   {:else}
-    {#each prs as pr (pr.id)}
-      <PRCard {pr} {mode} />
+    {#each prs as pr, i (pr.id)}
+      <PRCard {pr} {mode} focused={$focusedIndex === i} />
     {/each}
     {#if prs.length === 0}
       <div class="empty">
