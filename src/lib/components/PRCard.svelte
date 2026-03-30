@@ -74,6 +74,15 @@
           ⏳ Not reviewed
         {/if}
       </div>
+      {#if rrPR.reviews.length > 0}
+        <div class="reviewers">
+          {#each rrPR.reviews as review}
+            <span class="reviewer">
+              {STATUS_ICONS[review.state]} {review.author}
+            </span>
+          {/each}
+        </div>
+      {/if}
     {/if}
     <div class="status-line">
       {#if pr.isDraft}

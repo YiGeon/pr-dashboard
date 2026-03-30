@@ -48,6 +48,7 @@ export interface ReviewRequestedPR {
   updatedAt: string;
   myReviewStatus: ReviewState;
   previousReviewStatus: ReviewState | null;
+  reviews: Review[];
   baseRef: string;
   labels: Label[];
   unresolvedThreads: number;

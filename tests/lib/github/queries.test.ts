@@ -67,6 +67,8 @@ const MOCK_REVIEW_REQUESTED_RESPONSE = {
         reviews: {
           nodes: [
             { author: { login: "me" }, state: "APPROVED", submittedAt: "2026-03-26T06:00:00Z" },
+            { author: { login: "kim" }, state: "APPROVED", submittedAt: "2026-03-26T05:00:00Z" },
+            { author: { login: "lee" }, state: "COMMENTED", submittedAt: "2026-03-26T04:00:00Z" },
           ],
         },
         commits: { nodes: [{ commit: { statusCheckRollup: { state: "SUCCESS" } } }] },
@@ -138,6 +140,10 @@ describe("parseReviewRequestedPRs", () => {
       updatedAt: "2026-03-26T06:00:00Z",
       myReviewStatus: "pending",
       previousReviewStatus: "approved",
+      reviews: [
+        { author: "kim", state: "approved", submittedAt: "2026-03-26T05:00:00Z" },
+        { author: "lee", state: "commented", submittedAt: "2026-03-26T04:00:00Z" },
+      ],
       baseRef: "main",
       labels: [{ name: "feature", color: "a2eeef" }],
       unresolvedThreads: 1,

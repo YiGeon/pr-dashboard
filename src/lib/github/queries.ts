@@ -152,7 +152,8 @@ export function parseReviewRequestedPRs(data: any, username: string): ReviewRequ
   return data.search.nodes
     .filter((node: any) => node.id)
     .map((node: any) => {
-      const myReviews = (node.reviews?.nodes ?? [])
+      const rawNodes = node.reviews?.nodes ?? [];
+      const myReviews = rawNodes
         .filter((r: any) => r.author?.login === username)
         .map((r: any) => ({
           state: r.state,
@@ -162,6 +163,23 @@ export function parseReviewRequestedPRs(data: any, username: string): ReviewRequ
       const myLatest = myReviews.sort(
         (a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
       )[0];
+
+      const otherReviews: Review[] = rawNodes
+        .filter((r: any) => r.author?.login && r.author.login !== username)
+        .map((r: any) => ({
+          author: r.author.login,
+          state: normalizeReviewState(r.state),
+          submittedAt: r.submittedAt,
+        }));
+
+      // 저자별 최신 리뷰만 유지
+      const latestByAuthor = new Map<string, Review>();
+      for (const r of otherReviews) {
+        const existing = latestByAuthor.get(r.author);
+        if (!existing || r.submittedAt > existing.submittedAt) {
+          latestByAuthor.set(r.author, r);
+        }
+      }
 
       const commitNode = node.commits?.nodes?.[0]?.commit;
       const ciStatus = normalizeCIStatus(commitNode?.statusCheckRollup ?? null);
@@ -177,6 +195,7 @@ export function parseReviewRequestedPRs(data: any, username: string): ReviewRequ
         updatedAt: node.updatedAt,
         myReviewStatus: "pending" as ReviewState,
         previousReviewStatus: myLatest ? normalizeReviewState(myLatest.state) : null,
+        reviews: [...latestByAuthor.values()],
         baseRef: node.baseRefName ?? "main",
         labels: (node.labels?.nodes ?? []).map((l: any) => ({ name: l.name, color: l.color })),
         unresolvedThreads: (node.reviewThreads?.nodes ?? []).filter((t: any) => !t.isResolved).length,
