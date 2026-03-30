@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { relativeTime, computeReviewStatus, reviewStatusPriority } from "../../src/lib/utils";
+import { relativeTime, computeReviewStatus, reviewStatusPriority, labelTextColor } from "../../src/lib/utils";
 
 describe("relativeTime", () => {
   beforeEach(() => {
@@ -61,5 +61,23 @@ describe("reviewStatusPriority", () => {
   it("sorts changes_requested first, then pending, then approved", () => {
     expect(reviewStatusPriority("changes_requested")).toBeLessThan(reviewStatusPriority("pending"));
     expect(reviewStatusPriority("pending")).toBeLessThan(reviewStatusPriority("approved"));
+  });
+});
+
+describe("labelTextColor", () => {
+  it("returns dark text for light background", () => {
+    expect(labelTextColor("f9d0c4")).toBe("#24292f");
+  });
+
+  it("returns light text for dark background", () => {
+    expect(labelTextColor("0e8a16")).toBe("#ffffff");
+  });
+
+  it("returns light text for very dark color", () => {
+    expect(labelTextColor("000000")).toBe("#ffffff");
+  });
+
+  it("returns dark text for white", () => {
+    expect(labelTextColor("ffffff")).toBe("#24292f");
   });
 });
