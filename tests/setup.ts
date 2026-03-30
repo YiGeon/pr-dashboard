@@ -2,6 +2,13 @@ import { vi } from "vitest";
 
 // Mock browser APIs for Node.js test environment
 
+// crypto.randomUUID mock (not available in jsdom)
+Object.defineProperty(globalThis, "crypto", {
+  value: {
+    randomUUID: () => Math.random().toString(36).substring(2) + Date.now().toString(36),
+  },
+});
+
 // localStorage mock
 const store = new Map<string, string>();
 Object.defineProperty(globalThis, "localStorage", {

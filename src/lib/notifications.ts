@@ -1,5 +1,5 @@
-import { get } from "svelte/store";
-import type { MyPR, ReviewRequestedPR } from "./types";
+import { writable, derived, get } from "svelte/store";
+import type { MyPR, ReviewRequestedPR, AppNotification } from "./types";
 import { settings } from "./stores/settings";
 
 export interface NewReviewEvent {
@@ -13,6 +13,74 @@ export interface NewReviewRequestEvent {
   prTitle: string;
   prUrl: string;
   author: string;
+}
+
+export const NOTIFICATIONS_STORAGE_KEY = "pr-dashboard-notifications";
+export const MAX_NOTIFICATIONS = 50;
+export const TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+export const notifications = writable<AppNotification[]>([]);
+export const unreadCount = derived(notifications, ($n) => $n.filter((x) => !x.read).length);
+
+function saveToStorage(items: AppNotification[]) {
+  localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(items));
+}
+
+export function loadNotifications() {
+  const raw = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const parsed: AppNotification[] = JSON.parse(raw);
+    const now = Date.now();
+    const valid = parsed.filter(
+      (n) => now - new Date(n.createdAt).getTime() < TTL_MS
+    );
+    const trimmed = valid.slice(0, MAX_NOTIFICATIONS);
+    notifications.set(trimmed);
+    saveToStorage(trimmed);
+  } catch {
+    // ignore corrupted data
+  }
+}
+
+export function addNotification(event: {
+  type: "new_review" | "review_request";
+  prTitle: string;
+  prUrl: string;
+  actor: string;
+  reviewState?: string;
+}) {
+  const item: AppNotification = {
+    id: crypto.randomUUID(),
+    type: event.type,
+    prTitle: event.prTitle,
+    prUrl: event.prUrl,
+    actor: event.actor,
+    reviewState: event.reviewState as AppNotification["reviewState"],
+    read: false,
+    createdAt: new Date().toISOString(),
+  };
+  notifications.update((prev) => {
+    const updated = [item, ...prev].slice(0, MAX_NOTIFICATIONS);
+    saveToStorage(updated);
+    return updated;
+  });
+}
+
+export function markAsRead(id: string) {
+  notifications.update((prev) => {
+    const updated = prev.map((n) => (n.id === id ? { ...n, read: true } : n));
+    saveToStorage(updated);
+    return updated;
+  });
+}
+
+export function markAllAsRead() {
+  notifications.update((prev) => {
+    const updated = prev.map((n) => ({ ...n, read: true }));
+    saveToStorage(updated);
+    return updated;
+  });
 }
 
 export function detectNewReviews(prev: MyPR[], curr: MyPR[]): NewReviewEvent[] {
