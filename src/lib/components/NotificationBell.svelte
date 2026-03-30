@@ -95,7 +95,7 @@
     right: -6px;
     background: #da3633;
     color: #fff;
-    font-size: 0.6rem;
+    font-size: 11px;
     font-weight: 700;
     min-width: 16px;
     height: 16px;
@@ -131,7 +131,7 @@
   }
 
   .dropdown-title {
-    font-size: 0.85rem;
+    font-size: 14px;
     font-weight: 600;
     color: #e6edf3;
   }
@@ -140,7 +140,7 @@
     background: none;
     border: none;
     color: #58a6ff;
-    font-size: 0.75rem;
+    font-size: 12px;
     cursor: pointer;
     padding: 0;
   }
@@ -192,7 +192,7 @@
   }
 
   .notif-icon {
-    font-size: 0.85rem;
+    font-size: 14px;
     flex-shrink: 0;
     margin-top: 2px;
   }
@@ -203,7 +203,7 @@
   }
 
   .notif-pr {
-    font-size: 0.8rem;
+    font-size: 13px;
     font-weight: 600;
     color: #e6edf3;
     overflow: hidden;
@@ -212,7 +212,7 @@
   }
 
   .notif-meta {
-    font-size: 0.7rem;
+    font-size: 12px;
     color: #8b949e;
     margin-top: 2px;
   }
@@ -221,6 +221,6 @@
     padding: 2rem 1rem;
     text-align: center;
     color: #484f58;
-    font-size: 0.8rem;
+    font-size: 14px;
   }
 </style>

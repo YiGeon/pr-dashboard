@@ -111,7 +111,7 @@
   }
 
   .pr-title {
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 600;
     color: #ffffff;
     overflow: hidden;
@@ -125,7 +125,7 @@
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    font-size: 0.8125rem;
+    font-size: 12px;
     color: #8b949e;
     margin-bottom: 0.75rem;
   }
@@ -143,7 +143,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    font-size: 0.75rem;
+    font-size: 12px;
     color: #c9d1d9;
     align-items: center;
   }
@@ -152,7 +152,7 @@
     background: rgba(255, 255, 255, 0.06);
     padding: 0.25rem 0.625rem;
     border-radius: 12px;
-    font-size: 0.75rem;
+    font-size: 12px;
     font-weight: 500;
     display: inline-flex;
   }
@@ -162,7 +162,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 0.25rem 0.625rem;
     border-radius: 12px;
-    font-size: 0.75rem;
+    font-size: 12px;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -171,7 +171,7 @@
 
   .no-reviews {
     color: #6e7681;
-    font-size: 0.75rem;
+    font-size: 12px;
     font-style: italic;
     background: rgba(255, 255, 255, 0.03);
     padding: 0.25rem 0.625rem;

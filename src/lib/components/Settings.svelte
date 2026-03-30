@@ -103,7 +103,7 @@
   }
 
   .settings-header h2 {
-    font-size: 0.9rem;
+    font-size: 14px;
     color: #e6edf3;
     margin: 0;
   }
@@ -126,7 +126,7 @@
   }
 
   .setting-group h3 {
-    font-size: 0.8rem;
+    font-size: 12px;
     color: #8b949e;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -138,7 +138,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 0;
-    font-size: 0.85rem;
+    font-size: 14px;
   }
 
   .setting-label {
@@ -156,7 +156,7 @@
     border: 1px solid #30363d;
     border-radius: 4px;
     padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
+    font-size: 12px;
   }
 
   .org-access-btn {
@@ -165,7 +165,7 @@
     border: 1px solid #30363d;
     padding: 0.5rem 1rem;
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: 12px;
     cursor: pointer;
     margin-top: 0.5rem;
     width: 100%;
@@ -181,7 +181,7 @@
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: 12px;
     cursor: pointer;
     margin-top: 0.5rem;
   }

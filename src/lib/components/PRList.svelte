@@ -37,6 +37,6 @@
     text-align: center;
     color: #484f58;
     padding: 3rem;
-    font-size: 0.85rem;
+    font-size: 14px;
   }
 </style>

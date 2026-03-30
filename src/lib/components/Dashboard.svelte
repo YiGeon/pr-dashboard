@@ -91,7 +91,7 @@
   }
 
   .username {
-    font-size: 0.8rem;
+    font-size: 12px;
     color: #8b949e;
     margin-right: 0.5rem;
   }

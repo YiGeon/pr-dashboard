@@ -84,7 +84,7 @@
   }
 
   .toast-title {
-    font-size: 0.7rem;
+    font-size: 11px;
     color: #8b949e;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -92,7 +92,7 @@
   }
 
   .toast-pr {
-    font-size: 0.85rem;
+    font-size: 14px;
     font-weight: 600;
     color: #e6edf3;
     overflow: hidden;
@@ -101,7 +101,7 @@
   }
 
   .toast-body {
-    font-size: 0.75rem;
+    font-size: 12px;
     color: #8b949e;
     margin-top: 0.125rem;
   }
