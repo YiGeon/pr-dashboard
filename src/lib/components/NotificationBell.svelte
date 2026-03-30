@@ -1,6 +1,6 @@
 <script lang="ts">
   import { notifications, unreadCount, markAsRead, markAllAsRead, navigateToNotification } from "$lib/notifications";
-  import { relativeTime } from "$lib/utils";
+  import { relativeTime, formatNotificationBody } from "$lib/utils";
 
   let open = $state(false);
 
@@ -21,12 +21,6 @@
     return "👀";
   }
 
-  function getSubtext(notif: import("$lib/types").AppNotification): string {
-    if (notif.type === "new_review") {
-      return `${notif.actor} — ${notif.reviewState ?? "reviewed"}`;
-    }
-    return `from ${notif.actor}`;
-  }
 </script>
 
 <svelte:window onclick={handleClickOutside} />
@@ -57,7 +51,7 @@
             <div class="notif-content">
               <div class="notif-pr">{notif.prTitle}</div>
               <div class="notif-meta">
-                {getSubtext(notif)} · {relativeTime(notif.createdAt)}
+                {formatNotificationBody(notif)} · {relativeTime(notif.createdAt)}
               </div>
             </div>
           </button>

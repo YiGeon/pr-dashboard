@@ -1,29 +1,8 @@
 <script lang="ts">
-  import type { MyPR, ReviewRequestedPR, ReviewState } from "$lib/types";
-  import { relativeTime } from "$lib/utils";
+  import type { MyPR, ReviewRequestedPR } from "$lib/types";
+  import { relativeTime, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS } from "$lib/utils";
 
   let { pr, mode }: { pr: MyPR | ReviewRequestedPR; mode: "my-prs" | "review-requests" } = $props();
-
-  const STATUS_COLORS: Record<ReviewState, string> = {
-    approved: "#238636",
-    changes_requested: "#da3633",
-    commented: "#8b949e",
-    pending: "#d29922",
-  };
-
-  const STATUS_ICONS: Record<ReviewState, string> = {
-    approved: "✅",
-    changes_requested: "❌",
-    commented: "💬",
-    pending: "⏳",
-  };
-
-  const STATUS_LABELS: Record<ReviewState, string> = {
-    approved: "Approved",
-    changes_requested: "Changes requested",
-    commented: "Commented",
-    pending: "Pending",
-  };
 
   function getBarColor(): string {
     if (mode === "my-prs") {

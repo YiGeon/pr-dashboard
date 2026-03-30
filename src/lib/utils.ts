@@ -1,4 +1,4 @@
-import type { ReviewState } from "./types";
+import type { ReviewState, AppNotification } from "./types";
 
 export function relativeTime(dateStr: string): string {
   const now = Date.now();
@@ -36,6 +36,32 @@ export function computeReviewStatus(reviews: RawReview[]): ReviewState {
   if (states.every((s) => s === "APPROVED")) return "approved";
   if (states.some((s) => s === "COMMENTED")) return "commented";
   return "pending";
+}
+
+export const STATUS_COLORS: Record<ReviewState, string> = {
+  approved: "#238636",
+  changes_requested: "#da3633",
+  commented: "#8b949e",
+  pending: "#d29922",
+};
+
+export const STATUS_ICONS: Record<ReviewState, string> = {
+  approved: "✅",
+  changes_requested: "❌",
+  commented: "💬",
+  pending: "⏳",
+};
+
+export const STATUS_LABELS: Record<ReviewState, string> = {
+  approved: "Approved",
+  changes_requested: "Changes requested",
+  commented: "Commented",
+  pending: "Pending",
+};
+
+export function formatNotificationBody(notif: AppNotification): string {
+  if (notif.type === "new_review") return `${notif.actor} — ${notif.reviewState ?? "reviewed"}`;
+  return `from ${notif.actor}`;
 }
 
 const STATUS_PRIORITY: Record<ReviewState, number> = {

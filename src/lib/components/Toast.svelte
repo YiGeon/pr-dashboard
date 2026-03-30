@@ -1,5 +1,6 @@
 <script lang="ts">
   import { toastQueue, dismissToast, navigateToNotification } from "$lib/notifications";
+  import { formatNotificationBody } from "$lib/utils";
   import { onDestroy } from "svelte";
 
   const MAX_VISIBLE = 3;
@@ -28,13 +29,6 @@
     navigateToNotification(notif);
   }
 
-  function getBody(notif: import("$lib/types").AppNotification): string {
-    if (notif.type === "new_review") {
-      return `${notif.actor} — ${notif.reviewState ?? "reviewed"}`;
-    }
-    return `from ${notif.actor}`;
-  }
-
   function getTitle(notif: import("$lib/types").AppNotification): string {
     if (notif.type === "new_review") return "New review";
     return "Review requested";
@@ -46,7 +40,7 @@
     <button class="toast" onclick={() => handleClick(notif)}>
       <div class="toast-title">{getTitle(notif)}</div>
       <div class="toast-pr">{notif.prTitle}</div>
-      <div class="toast-body">{getBody(notif)}</div>
+      <div class="toast-body">{formatNotificationBody(notif)}</div>
     </button>
   {/each}
 </div>
