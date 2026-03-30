@@ -14,7 +14,7 @@ export const lastFetchedAt = writable<string | null>(null);
 
 export const pendingReviewCount = derived(
   reviewRequestedPRs,
-  ($prs) => $prs.filter((pr) => pr.myReviewStatus === "pending").length
+  ($prs) => $prs.length
 );
 
 export const filteredMyPRs = derived(

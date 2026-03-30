@@ -18,11 +18,19 @@
     pending: "⏳",
   };
 
+  const STATUS_LABELS: Record<ReviewState, string> = {
+    approved: "Approved",
+    changes_requested: "Changes requested",
+    commented: "Commented",
+    pending: "Pending",
+  };
+
   function getBarColor(): string {
     if (mode === "my-prs") {
       return STATUS_COLORS[(pr as MyPR).reviewStatus];
     }
-    return STATUS_COLORS[(pr as ReviewRequestedPR).myReviewStatus];
+    const prev = (pr as ReviewRequestedPR).previousReviewStatus;
+    return STATUS_COLORS[prev ?? "pending"];
   }
 
   function handleClick() {
@@ -38,8 +46,8 @@
     </div>
     <div class="card-meta">
       <span class="repo">{pr.repo}</span>
-      {#if mode === "review-requests"}
-        <span class="author">by {(pr as ReviewRequestedPR).author}</span>
+      {#if mode === "review-requests" && "author" in pr}
+        <span class="author">by {pr.author}</span>
       {/if}
       <span class="time">{relativeTime(pr.updatedAt)}</span>
     </div>
@@ -55,23 +63,15 @@
         {/if}
       </div>
     {:else}
+      {@const rrPR = pr as ReviewRequestedPR}
       <div class="my-review-status">
-        {#if (pr as ReviewRequestedPR).previousReviewStatus}
-          {STATUS_ICONS[(pr as ReviewRequestedPR).myReviewStatus]}
-          Re-review requested
+        {#if rrPR.previousReviewStatus}
+          ⏳ Re-review requested
           <span class="previous-review">
-            (prev: {STATUS_ICONS[(pr as ReviewRequestedPR).previousReviewStatus!]}
-            {#if (pr as ReviewRequestedPR).previousReviewStatus === "approved"}
-              Approved
-            {:else if (pr as ReviewRequestedPR).previousReviewStatus === "changes_requested"}
-              Changes requested
-            {:else}
-              Commented
-            {/if})
+            (prev: {STATUS_ICONS[rrPR.previousReviewStatus]} {STATUS_LABELS[rrPR.previousReviewStatus]})
           </span>
         {:else}
-          {STATUS_ICONS[(pr as ReviewRequestedPR).myReviewStatus]}
-          Not reviewed
+          ⏳ Not reviewed
         {/if}
       </div>
     {/if}
