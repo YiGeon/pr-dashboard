@@ -58,6 +58,8 @@
   });
 
   function handleKeydown(e: KeyboardEvent) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+
     const tag = document.activeElement?.tagName?.toLowerCase();
     if (tag === "input" || tag === "textarea" || tag === "select") {
       if (e.key === "Escape") {
