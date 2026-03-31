@@ -170,6 +170,10 @@
 
 <Toast />
 
+<button class="help-fab" onclick={() => (showShortcuts = !showShortcuts)} title="단축키 도움말">
+  <kbd>?</kbd>
+</button>
+
 {#if showShortcuts}
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div class="shortcuts-overlay" role="presentation" onclick={() => (showShortcuts = false)}>
@@ -367,5 +371,40 @@
     color: #c9d1d9;
     min-width: 24px;
     text-align: center;
+  }
+
+  .help-fab {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .help-fab:hover {
+    background: #30363d;
+    color: #e6edf3;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .help-fab kbd {
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 600;
+    color: inherit;
+    pointer-events: none;
   }
 </style>
