@@ -216,10 +216,12 @@ export function parseMyPRs(nodes: any[]): MyPR[] {
         state: r.state as string,
         submittedAt: r.submittedAt as string,
       }));
-      const reviews: Review[] = mapped.map((r: { author: string; state: string; submittedAt: string }) => ({
-        ...r,
-        state: normalizeReviewState(r.state),
-      }));
+      const latestByAuthor = new Map<string, Review>();
+      for (const r of mapped) {
+        const review: Review = { ...r, state: normalizeReviewState(r.state) };
+        latestByAuthor.set(r.author, review);
+      }
+      const reviews: Review[] = [...latestByAuthor.values()];
 
       const commitNode = node.commits?.nodes?.[0]?.commit;
       const ciStatus = normalizeCIStatus(commitNode?.statusCheckRollup ?? null);
