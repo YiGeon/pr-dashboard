@@ -94,3 +94,26 @@ export function labelTextColor(hexColor: string): string {
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   return luminance > 0.5 ? "#24292f" : "#ffffff";
 }
+
+const ENTITY_COLORS = [
+  '#539bf5', '#57ab5a', '#c69026', '#cc6b2c',
+  '#e5534b', '#b083f0', '#39c5cf', '#d16d9e',
+  '#768390', '#6cb6ff', '#8ddb8c', '#daaa3f',
+  '#986ee2', '#e0823d', '#4ac26b', '#f47067',
+  '#57adf0', '#c6902e', '#e275ad', '#73c991',
+  '#dba97b', '#7ee3be', '#a2a0d6', '#cf987a',
+];
+
+export function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+export function entityBadgeStyle(name: string): string {
+  const color = ENTITY_COLORS[hashString(name) % ENTITY_COLORS.length];
+  const [r, g, b] = hexToRgb(color.slice(1));
+  return `background: rgba(${r},${g},${b},0.15); border: 1px solid rgba(${r},${g},${b},0.25); color: ${color}`;
+}
