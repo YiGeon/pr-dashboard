@@ -67,3 +67,15 @@ export function applySorting<T extends Filterable>(items: T[], key: SortKey): T[
 
   return sorted;
 }
+
+export const highlightedPRId = writable<string | null>(null);
+let highlightTimer: ReturnType<typeof setTimeout> | null = null;
+
+export function setHighlightedPRId(prId: string) {
+  if (highlightTimer) clearTimeout(highlightTimer);
+  highlightedPRId.set(prId);
+  highlightTimer = setTimeout(() => {
+    highlightedPRId.set(null);
+    highlightTimer = null;
+  }, 3000);
+}

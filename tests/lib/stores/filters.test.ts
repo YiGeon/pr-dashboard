@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { applyFilters, applySorting } from "../../../src/lib/stores/filters";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { applyFilters, applySorting, highlightedPRId, setHighlightedPRId } from "../../../src/lib/stores/filters";
 import { urgentMyPRCount } from "../../../src/lib/stores/prs";
 import { get } from "svelte/store";
 import type { MyPR, SortKey } from "../../../src/lib/types";
@@ -82,5 +82,37 @@ describe("applySorting", () => {
     expect(result[0].reviewStatus).toBe("changes_requested");
     expect(result[1].reviewStatus).toBe("pending");
     expect(result[2].reviewStatus).toBe("approved");
+  });
+});
+
+describe("highlightedPRId", () => {
+  beforeEach(() => {
+    highlightedPRId.set(null);
+  });
+
+  it("should initialize as null", () => {
+    expect(get(highlightedPRId)).toBeNull();
+  });
+
+  it("should set value and auto-clear after 3 seconds", () => {
+    vi.useFakeTimers();
+    setHighlightedPRId("PR_123");
+    expect(get(highlightedPRId)).toBe("PR_123");
+    vi.advanceTimersByTime(3000);
+    expect(get(highlightedPRId)).toBeNull();
+    vi.useRealTimers();
+  });
+
+  it("should cancel previous timer when setting new value", () => {
+    vi.useFakeTimers();
+    setHighlightedPRId("PR_1");
+    vi.advanceTimersByTime(2000);
+    setHighlightedPRId("PR_2");
+    expect(get(highlightedPRId)).toBe("PR_2");
+    vi.advanceTimersByTime(1000);
+    expect(get(highlightedPRId)).toBe("PR_2");
+    vi.advanceTimersByTime(2000);
+    expect(get(highlightedPRId)).toBeNull();
+    vi.useRealTimers();
   });
 });
