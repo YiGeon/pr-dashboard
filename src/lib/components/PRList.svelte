@@ -46,9 +46,15 @@
         {:else if mode === "my-prs"}
           <div class="empty-icon">🎉</div>
           <div class="empty-text">열린 PR이 없습니다</div>
+          <div class="empty-sub">새 PR을 만들면 여기에 표시됩니다</div>
+        {:else if mode === "approved"}
+          <div class="empty-icon">📭</div>
+          <div class="empty-text">승인한 PR이 없습니다</div>
+          <div class="empty-sub">리뷰를 승인하면 여기에 표시됩니다</div>
         {:else}
           <div class="empty-icon">✅</div>
           <div class="empty-text">리뷰 요청이 없습니다</div>
+          <div class="empty-sub">모든 리뷰를 완료했습니다</div>
         {/if}
       </div>
     {/if}
@@ -142,6 +148,11 @@
   .empty-text {
     color: #8b949e;
     font-size: 14px;
+  }
+
+  .empty-sub {
+    color: #656d76;
+    font-size: 12px;
   }
 
   .reset-btn {
