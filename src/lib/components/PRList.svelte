@@ -3,11 +3,24 @@
   import type { MyPR, ReviewRequestedPR } from "$lib/types";
   import type { TabKey } from "$lib/stores/filters";
   import { isLoading, myPRs, reviewRequestedPRs, approvedPRs } from "$lib/stores/prs";
-  import { selectedOrgs, searchQuery, focusedIndex } from "$lib/stores/filters";
+  import { selectedOrgs, searchQuery, focusedIndex, groupByRepo } from "$lib/stores/filters";
+  import { entityBadgeStyle } from "$lib/utils";
 
   let { prs, mode }: { prs: (MyPR | ReviewRequestedPR)[]; mode: TabKey } = $props();
 
   const hasActiveFilter = $derived($selectedOrgs.length > 0 || $searchQuery.trim() !== "");
+
+  type RepoGroup = { repo: string; prs: (MyPR | ReviewRequestedPR)[] };
+  const grouped = $derived.by(() => {
+    if (!$groupByRepo) return null;
+    const map = new Map<string, (MyPR | ReviewRequestedPR)[]>();
+    for (const pr of prs) {
+      const list = map.get(pr.repo);
+      if (list) list.push(pr);
+      else map.set(pr.repo, [pr]);
+    }
+    return [...map.entries()].map(([repo, prs]) => ({ repo, prs })) as RepoGroup[];
+  });
   const hasOriginalData = $derived(
     mode === "my-prs" ? $myPRs.length > 0 :
     mode === "approved" ? $approvedPRs.length > 0 :
@@ -34,9 +47,25 @@
       </div>
     {/each}
   {:else}
-    {#each prs as pr, i (pr.id)}
-      <PRCard {pr} {mode} focused={$focusedIndex === i} />
-    {/each}
+    {#if grouped}
+      {@const flatIndex = { value: 0 }}
+      {#each grouped as group (group.repo)}
+        <div class="repo-group">
+          <div class="repo-group-header">
+            <span class="repo-group-name entity-badge" style={entityBadgeStyle(group.repo)}>{group.repo}</span>
+            <span class="repo-group-count">{group.prs.length}</span>
+          </div>
+          {#each group.prs as pr, _j (pr.id)}
+            {@const idx = flatIndex.value++}
+            <PRCard {pr} {mode} focused={$focusedIndex === idx} />
+          {/each}
+        </div>
+      {/each}
+    {:else}
+      {#each prs as pr, i (pr.id)}
+        <PRCard {pr} {mode} focused={$focusedIndex === i} />
+      {/each}
+    {/if}
     {#if prs.length === 0}
       <div class="empty">
         {#if hasActiveFilter && hasOriginalData}
@@ -128,6 +157,41 @@
   @keyframes pulse {
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
+  }
+
+  /* Repo group styles */
+  .repo-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .repo-group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+    margin-top: 0.5rem;
+  }
+
+  .repo-group:first-child .repo-group-header {
+    margin-top: 0;
+  }
+
+  .repo-group-name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .entity-badge {
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+  }
+
+  .repo-group-count {
+    font-size: 11px;
+    color: #656d76;
+    font-variant-numeric: tabular-nums;
   }
 
   /* Empty state styles */

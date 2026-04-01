@@ -1,6 +1,6 @@
 <script lang="ts">
   import { organizations } from "$lib/stores/prs";
-  import { selectedOrgs, searchQuery, sortKey } from "$lib/stores/filters";
+  import { selectedOrgs, searchQuery, sortKey, groupByRepo } from "$lib/stores/filters";
   import type { SortKey } from "$lib/types";
 
   let orgDropdownOpen = $state(false);
@@ -64,6 +64,15 @@
     <option value="reviewStatus">Review Status</option>
   </select>
 
+  <button
+    class="filter-btn"
+    class:active={$groupByRepo}
+    onclick={() => groupByRepo.update(v => !v)}
+    title="레포별 그룹핑"
+  >
+    {$groupByRepo ? "▤ Grouped" : "▤ Flat"}
+  </button>
+
   <input
     type="text"
     class="search-input"
@@ -100,6 +109,12 @@
 
   .filter-btn:hover, .sort-select:hover {
     border-color: #484f58;
+  }
+
+  .filter-btn.active {
+    background: #1f6feb;
+    border-color: #1f6feb;
+    color: #fff;
   }
 
   .dropdown {
