@@ -35,6 +35,7 @@ export interface MyPR {
   changedFiles: number;
   isDraft: boolean;
   mergeable: MergeableState;
+  commitCount: number;
 }
 
 export interface ReviewRequestedPR {
@@ -58,6 +59,7 @@ export interface ReviewRequestedPR {
   isDraft: boolean;
   mergeable: MergeableState;
   ciStatus: CIStatus;
+  commitCount: number;
 }
 
 export type SortKey = "updatedAt" | "createdAt" | "reviewStatus";

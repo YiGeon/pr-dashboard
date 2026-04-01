@@ -129,6 +129,8 @@
         <span class="deletions">-{pr.deletions}</span>
         <span class="dot-sep">·</span>
         <span class="files">{pr.changedFiles} {pr.changedFiles === 1 ? "file" : "files"}</span>
+        <span class="dot-sep">·</span>
+        <span class="commits">{pr.commitCount} {pr.commitCount === 1 ? "commit" : "commits"}</span>
       </span>
     </div>
     {#if pr.labels.length > 0}
@@ -366,6 +368,7 @@
   .additions { color: #3fb950; font-weight: 600; }
   .deletions { color: #f85149; font-weight: 600; }
   .files { color: #8b949e; }
+  .commits { color: #8b949e; }
 
   .labels {
     display: flex;

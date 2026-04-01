@@ -17,6 +17,7 @@ export const MY_PRS_QUERY = `
             nodes { author { login } state submittedAt }
           }
           commits(last: 1) {
+            totalCount
             nodes { commit { statusCheckRollup { state } } }
           }
           mergeable
@@ -54,6 +55,7 @@ export const REVIEW_REQUESTED_QUERY = `
             nodes { author { login } state submittedAt }
           }
           commits(last: 1) {
+            totalCount
             nodes { commit { statusCheckRollup { state } } }
           }
           mergeable
@@ -242,6 +244,7 @@ export function parseMyPRs(nodes: any[]): MyPR[] {
         changedFiles: node.changedFiles ?? 0,
         isDraft: node.isDraft ?? false,
         mergeable: normalizeMergeableState(node.mergeable),
+        commitCount: node.commits?.totalCount ?? 0,
       };
     });
 }
@@ -305,6 +308,7 @@ export function parseReviewRequestedPRs(nodes: any[], username: string, forcePen
         isDraft: node.isDraft ?? false,
         mergeable: normalizeMergeableState(node.mergeable),
         ciStatus,
+        commitCount: node.commits?.totalCount ?? 0,
       };
     });
 }

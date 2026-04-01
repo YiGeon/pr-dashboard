@@ -18,6 +18,7 @@ const MOCK_MY_PRS_RESPONSE = {
           ],
         },
         commits: {
+          totalCount: 3,
           nodes: [{ commit: { statusCheckRollup: { state: "SUCCESS" } } }],
         },
         mergeable: "MERGEABLE",
@@ -38,6 +39,7 @@ const MOCK_MY_PRS_RESPONSE = {
         updatedAt: "2026-03-26T05:00:00Z",
         reviews: { nodes: [] },
         commits: {
+          totalCount: 1,
           nodes: [{ commit: { statusCheckRollup: null } }],
         },
         mergeable: "CONFLICTING",
@@ -71,7 +73,7 @@ const MOCK_REVIEW_REQUESTED_RESPONSE = {
             { author: { login: "lee" }, state: "COMMENTED", submittedAt: "2026-03-26T04:00:00Z" },
           ],
         },
-        commits: { nodes: [{ commit: { statusCheckRollup: { state: "SUCCESS" } } }] },
+        commits: { totalCount: 5, nodes: [{ commit: { statusCheckRollup: { state: "SUCCESS" } } }] },
         mergeable: "MERGEABLE",
         baseRefName: "main",
         isDraft: false,
@@ -113,6 +115,7 @@ describe("parseMyPRs", () => {
       changedFiles: 5,
       isDraft: false,
       mergeable: "mergeable",
+      commitCount: 3,
     });
 
     expect(result[1].reviewStatus).toBe("pending");
@@ -153,6 +156,7 @@ describe("parseReviewRequestedPRs", () => {
       isDraft: false,
       mergeable: "mergeable",
       ciStatus: "success",
+      commitCount: 5,
     });
   });
 
