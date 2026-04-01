@@ -4,6 +4,7 @@
   import type { PRDetail } from "$lib/github/queries";
   import { relativeTime, formatDate, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, hexToRgb, labelTextColor, entityBadgeStyle } from "$lib/utils";
   import { fetchPRDetail } from "$lib/github/client";
+  import { prNotes, setNote, PRIORITY_COLORS, PRIORITY_LABELS, type Priority } from "$lib/stores/notes";
 
   let { pr, mode, focused = false }: { pr: MyPR | ReviewRequestedPR; mode: TabKey; focused?: boolean } = $props();
 
@@ -11,6 +12,14 @@
   let expanded = $state(false);
   let detail = $state<PRDetail | null>(null);
   let detailLoading = $state(false);
+
+  const note = $derived($prNotes[pr.id] ?? null);
+  let memoInput = $state("");
+  let editingMemo = $state(false);
+
+  $effect(() => {
+    memoInput = note?.memo ?? "";
+  });
 
   $effect(() => {
     if (focused && cardEl) {
@@ -44,6 +53,30 @@
     window.open(pr.url, "_blank");
   }
 
+  function cyclePriority(e: MouseEvent) {
+    e.stopPropagation();
+    const order: Priority[] = [null, "high", "medium", "low"];
+    const current = note?.priority ?? null;
+    const next = order[(order.indexOf(current) + 1) % order.length];
+    setNote(pr.id, note?.memo ?? "", next);
+  }
+
+  function saveMemo() {
+    setNote(pr.id, memoInput.trim(), note?.priority ?? null);
+    editingMemo = false;
+  }
+
+  function handleMemoKeydown(e: KeyboardEvent) {
+    e.stopPropagation();
+    if (e.key === "Enter") saveMemo();
+    if (e.key === "Escape") { editingMemo = false; memoInput = note?.memo ?? ""; }
+  }
+
+  function startEditMemo(e: MouseEvent) {
+    e.stopPropagation();
+    editingMemo = true;
+  }
+
   function labelStyle(label: Label): string {
     const [r, g, b] = hexToRgb(label.color);
     return `background: rgba(${r},${g},${b},0.2); border-color: rgba(${r},${g},${b},0.3); color: ${labelTextColor(label.color)}`;
@@ -56,7 +89,13 @@
   <div class="status-bar" style="background: {getBarColor()}"></div>
   <div class="card-content">
     <div class="card-header">
+      {#if note?.priority}
+        <span class="priority-dot" style="color: {PRIORITY_COLORS[note.priority]}" title="{PRIORITY_LABELS[note.priority]} priority">●</span>
+      {/if}
       <span class="pr-title">{pr.title}</span>
+      {#if note?.memo}
+        <span class="memo-indicator" title={note.memo}>📝</span>
+      {/if}
       {#if pr.isDraft}
         <span class="draft-badge">Draft</span>
       {/if}
@@ -136,6 +175,33 @@
     {/if}
     {#if expanded}
       <div class="detail-panel">
+        <div class="note-section">
+          <div class="note-row">
+            <button class="priority-btn" onclick={cyclePriority} title="우선순위 변경">
+              {#if note?.priority}
+                <span style="color: {PRIORITY_COLORS[note.priority]}">● {PRIORITY_LABELS[note.priority]}</span>
+              {:else}
+                <span class="priority-none">○ Priority</span>
+              {/if}
+            </button>
+            {#if editingMemo}
+              <!-- svelte-ignore a11y_autofocus -->
+              <input
+                class="memo-input"
+                type="text"
+                placeholder="메모 입력..."
+                bind:value={memoInput}
+                onkeydown={handleMemoKeydown}
+                onblur={saveMemo}
+                autofocus
+              />
+            {:else}
+              <button class="memo-btn" onclick={startEditMemo}>
+                {note?.memo || "메모 추가..."}
+              </button>
+            {/if}
+          </div>
+        </div>
         {#if detailLoading}
           <div class="detail-loading">Loading...</div>
         {:else if detail}
@@ -377,6 +443,80 @@
     border-radius: 10px;
     line-height: 1.5;
     border: 1px solid transparent;
+  }
+
+  .priority-dot {
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .memo-indicator {
+    font-size: 11px;
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+
+  .note-section {
+    margin-bottom: 0.75rem;
+  }
+
+  .note-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .priority-btn {
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    font-size: 11px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.15s;
+  }
+
+  .priority-btn:hover {
+    border-color: #484f58;
+  }
+
+  .priority-none {
+    color: #656d76;
+  }
+
+  .memo-input {
+    flex: 1;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    font-size: 12px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    outline: none;
+  }
+
+  .memo-input:focus {
+    border-color: #58a6ff;
+  }
+
+  .memo-btn {
+    flex: 1;
+    background: none;
+    border: 1px solid transparent;
+    color: #656d76;
+    font-size: 12px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s;
+  }
+
+  .memo-btn:hover {
+    border-color: #30363d;
+    color: #8b949e;
   }
 
   .pr-card.expanded {
