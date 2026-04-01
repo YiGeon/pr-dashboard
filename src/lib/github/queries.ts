@@ -74,6 +74,101 @@ export const REVIEW_REQUESTED_QUERY = `
   }
 `;
 
+export const PR_DETAIL_QUERY = `
+  query($nodeId: ID!) {
+    node(id: $nodeId) {
+      ... on PullRequest {
+        commits(last: 10) {
+          nodes {
+            commit {
+              oid
+              messageHeadline
+              author { name date }
+            }
+          }
+        }
+        comments(last: 15) {
+          nodes {
+            author { login }
+            body
+            createdAt
+          }
+        }
+        reviewThreads(first: 20) {
+          nodes {
+            isResolved
+            comments(first: 3) {
+              nodes {
+                author { login }
+                body
+                createdAt
+                path
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export interface PRDetailCommit {
+  oid: string;
+  message: string;
+  author: string;
+  date: string;
+}
+
+export interface PRDetailComment {
+  author: string;
+  body: string;
+  createdAt: string;
+  path?: string;
+  isReviewThread: boolean;
+  isResolved: boolean;
+}
+
+export interface PRDetail {
+  commits: PRDetailCommit[];
+  comments: PRDetailComment[];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parsePRDetail(data: any): PRDetail {
+  const node = data.node;
+  const commits: PRDetailCommit[] = (node.commits?.nodes ?? []).map((n: any) => ({
+    oid: n.commit.oid.slice(0, 7),
+    message: n.commit.messageHeadline,
+    author: n.commit.author?.name ?? "unknown",
+    date: n.commit.author?.date ?? "",
+  })).reverse();
+
+  const issueComments: PRDetailComment[] = (node.comments?.nodes ?? []).map((c: any) => ({
+    author: c.author?.login ?? "unknown",
+    body: c.body?.slice(0, 200) ?? "",
+    createdAt: c.createdAt,
+    isReviewThread: false,
+    isResolved: false,
+  }));
+
+  const threadComments: PRDetailComment[] = (node.reviewThreads?.nodes ?? []).flatMap((t: any) =>
+    (t.comments?.nodes ?? []).map((c: any) => ({
+      author: c.author?.login ?? "unknown",
+      body: c.body?.slice(0, 200) ?? "",
+      createdAt: c.createdAt,
+      path: c.path,
+      isReviewThread: true,
+      isResolved: t.isResolved,
+    }))
+  );
+
+  const comments = [...issueComments, ...threadComments]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 15);
+
+  return { commits, comments };
+}
+
 function normalizeReviewState(state: string): ReviewState {
   const map: Record<string, ReviewState> = {
     APPROVED: "approved",

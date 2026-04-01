@@ -1,11 +1,16 @@
 <script lang="ts">
   import type { MyPR, ReviewRequestedPR, Label } from "$lib/types";
   import type { TabKey } from "$lib/stores/filters";
+  import type { PRDetail } from "$lib/github/queries";
   import { relativeTime, formatDate, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, hexToRgb, labelTextColor, entityBadgeStyle } from "$lib/utils";
+  import { fetchPRDetail } from "$lib/github/client";
 
   let { pr, mode, focused = false }: { pr: MyPR | ReviewRequestedPR; mode: TabKey; focused?: boolean } = $props();
 
-  let cardEl: HTMLButtonElement;
+  let cardEl: HTMLElement;
+  let expanded = $state(false);
+  let detail = $state<PRDetail | null>(null);
+  let detailLoading = $state(false);
 
   $effect(() => {
     if (focused && cardEl) {
@@ -20,7 +25,22 @@
     return STATUS_COLORS[(pr as ReviewRequestedPR).myReviewStatus];
   }
 
-  function handleClick() {
+  async function toggleExpand() {
+    expanded = !expanded;
+    if (expanded && !detail) {
+      detailLoading = true;
+      try {
+        detail = await fetchPRDetail(pr.id);
+      } catch (err) {
+        console.error("Failed to fetch PR detail:", err);
+      } finally {
+        detailLoading = false;
+      }
+    }
+  }
+
+  function openInGitHub(e: MouseEvent) {
+    e.stopPropagation();
     window.open(pr.url, "_blank");
   }
 
@@ -30,7 +50,9 @@
   }
 </script>
 
-<button class="pr-card" class:focused onclick={handleClick} bind:this={cardEl}>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="pr-card" class:focused class:expanded onclick={toggleExpand} bind:this={cardEl}>
   <div class="status-bar" style="background: {getBarColor()}"></div>
   <div class="card-content">
     <div class="card-header">
@@ -38,6 +60,7 @@
       {#if pr.isDraft}
         <span class="draft-badge">Draft</span>
       {/if}
+      <button class="open-link" onclick={openInGitHub} title="GitHub에서 열기">↗</button>
     </div>
     <div class="card-meta">
       <span class="repo entity-badge" style={entityBadgeStyle(pr.repo)}>{pr.repo}</span>
@@ -111,8 +134,50 @@
         {/each}
       </div>
     {/if}
+    {#if expanded}
+      <div class="detail-panel">
+        {#if detailLoading}
+          <div class="detail-loading">Loading...</div>
+        {:else if detail}
+          <div class="detail-sections">
+            {#if detail.commits.length > 0}
+              <div class="detail-section">
+                <div class="detail-section-title">Commits ({detail.commits.length})</div>
+                {#each detail.commits as commit}
+                  <div class="commit-row">
+                    <code class="commit-sha">{commit.oid}</code>
+                    <span class="commit-msg">{commit.message}</span>
+                    <span class="commit-meta">{commit.author} · {relativeTime(commit.date)}</span>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+            {#if detail.comments.length > 0}
+              <div class="detail-section">
+                <div class="detail-section-title">Comments ({detail.comments.length})</div>
+                {#each detail.comments as comment}
+                  <div class="comment-row" class:resolved={comment.isResolved}>
+                    <div class="comment-header">
+                      <span class="comment-author">{comment.author}</span>
+                      {#if comment.path}
+                        <span class="comment-path">{comment.path}</span>
+                      {/if}
+                      <span class="comment-time">{relativeTime(comment.createdAt)}</span>
+                    </div>
+                    <div class="comment-body">{comment.body}</div>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+            {#if detail.commits.length === 0 && detail.comments.length === 0}
+              <div class="detail-empty">커밋과 코멘트가 없습니다</div>
+            {/if}
+          </div>
+        {/if}
+      </div>
+    {/if}
   </div>
-</button>
+</div>
 
 <style>
   .pr-card {
@@ -312,5 +377,146 @@
     border-radius: 10px;
     line-height: 1.5;
     border: 1px solid transparent;
+  }
+
+  .pr-card.expanded {
+    border-color: #30363d;
+    background: #1c2129;
+  }
+
+  .open-link {
+    background: none;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    font-size: 12px;
+    padding: 0 0.375rem;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    line-height: 1.4;
+    margin-left: auto;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .open-link:hover {
+    color: #58a6ff;
+    border-color: #58a6ff;
+  }
+
+  .detail-panel {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #21262d;
+  }
+
+  .detail-loading {
+    color: #656d76;
+    font-size: 12px;
+    padding: 0.5rem 0;
+  }
+
+  .detail-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .detail-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.375rem;
+  }
+
+  .commit-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 12px;
+    padding: 0.25rem 0;
+  }
+
+  .commit-sha {
+    color: #58a6ff;
+    font-size: 11px;
+    background: rgba(88, 166, 255, 0.1);
+    padding: 0.0625rem 0.3rem;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .commit-msg {
+    color: #c9d1d9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .commit-meta {
+    color: #656d76;
+    font-size: 11px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .comment-row {
+    padding: 0.375rem 0;
+    border-bottom: 1px solid #21262d;
+  }
+
+  .comment-row:last-child {
+    border-bottom: none;
+  }
+
+  .comment-row.resolved {
+    opacity: 0.5;
+  }
+
+  .comment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 11px;
+    margin-bottom: 0.25rem;
+  }
+
+  .comment-author {
+    color: #c9d1d9;
+    font-weight: 600;
+  }
+
+  .comment-path {
+    color: #58a6ff;
+    font-size: 10px;
+    background: rgba(88, 166, 255, 0.1);
+    padding: 0.0625rem 0.25rem;
+    border-radius: 3px;
+  }
+
+  .comment-time {
+    color: #656d76;
+    margin-left: auto;
+  }
+
+  .comment-body {
+    color: #8b949e;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  .detail-empty {
+    color: #656d76;
+    font-size: 12px;
+    padding: 0.5rem 0;
   }
 </style>

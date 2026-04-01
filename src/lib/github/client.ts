@@ -1,5 +1,6 @@
 import { graphql } from "@octokit/graphql";
-import { MY_PRS_QUERY, REVIEW_REQUESTED_QUERY, parseMyPRs, parseReviewRequestedPRs } from "./queries";
+import { MY_PRS_QUERY, REVIEW_REQUESTED_QUERY, PR_DETAIL_QUERY, parseMyPRs, parseReviewRequestedPRs, parsePRDetail } from "./queries";
+import type { PRDetail } from "./queries";
 import type { MyPR, ReviewRequestedPR } from "../types";
 
 let graphqlClient: typeof graphql | null = null;
@@ -65,6 +66,12 @@ export async function fetchApprovedPRs(): Promise<ReviewRequestedPR[]> {
   const nodes = await fetchAllPages(REVIEW_REQUESTED_QUERY, `is:pr is:open reviewed-by:${currentUsername} -author:${currentUsername}`);
   return parseReviewRequestedPRs(nodes, currentUsername, false)
     .filter((pr) => pr.myReviewStatus === "approved");
+}
+
+export async function fetchPRDetail(nodeId: string): Promise<PRDetail> {
+  if (!graphqlClient) throw new Error("Client not initialized");
+  const data: any = await graphqlClient(PR_DETAIL_QUERY, { nodeId });
+  return parsePRDetail(data);
 }
 
 export async function fetchOrganizations(): Promise<string[]> {
