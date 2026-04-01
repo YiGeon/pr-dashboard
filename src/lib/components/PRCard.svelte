@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { MyPR, ReviewRequestedPR, Label } from "$lib/types";
   import type { TabKey } from "$lib/stores/filters";
-  import { relativeTime, formatDate, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, hexToRgb, labelTextColor } from "$lib/utils";
+  import { relativeTime, formatDate, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, hexToRgb, labelTextColor, entityBadgeStyle } from "$lib/utils";
 
   let { pr, mode, focused = false }: { pr: MyPR | ReviewRequestedPR; mode: TabKey; focused?: boolean } = $props();
 
@@ -40,11 +40,11 @@
       {/if}
     </div>
     <div class="card-meta">
-      <span class="repo">{pr.repo}</span>
+      <span class="repo entity-badge" style={entityBadgeStyle(pr.repo)}>{pr.repo}</span>
       <span class="base-ref">← {pr.baseRef}</span>
       {#if mode === "review-requests" && "author" in pr}
         <span class="separator">·</span>
-        <span class="author">by {pr.author}</span>
+        <span class="author entity-badge" style={entityBadgeStyle(pr.author)}>by {pr.author}</span>
       {/if}
       <span class="separator">·</span>
       <span class="time" title="Created: {formatDate(pr.createdAt)}">created {relativeTime(pr.createdAt)}</span>
@@ -180,6 +180,12 @@
     font-size: 12px;
     color: #8b949e;
     margin-bottom: 0.625rem;
+  }
+
+  .entity-badge {
+    padding: 0.0625rem 0.375rem;
+    border-radius: 10px;
+    font-weight: 500;
   }
 
   .card-meta .repo {
