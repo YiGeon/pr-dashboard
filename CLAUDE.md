@@ -53,7 +53,7 @@ SvelteKit on Vercel
 ## Key Files
 
 - `src/lib/types.ts` — 공유 타입 (MyPR, ReviewRequestedPR, Label, MergeableState, Settings 등)
-- `src/lib/github/queries.ts` — GraphQL 쿼리 + 응답 파서 (mergeable, labels, threads, diff 포함)
+- `src/lib/github/queries.ts` — GraphQL 쿼리 + 응답 파서 (mergeable, labels, threads, diff, commitCount 포함)
 - `src/lib/stores/prs.ts` — PR 데이터 store, 폴링, derived 필터 (urgentMyPRCount, lastUpdateCount)
 - `src/lib/stores/filters.ts` — 필터/정렬/검색/탭/포커스/그룹핑 상태 (groupByRepo는 localStorage 영속)
 - `src/lib/utils.ts` — 유틸 함수 (relativeTime, formatDate, labelTextColor, STATUS_COLORS/ICONS/LABELS, formatNotificationBody, hashString, entityBadgeStyle)
