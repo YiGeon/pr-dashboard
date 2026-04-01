@@ -78,6 +78,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export interface AppNotification {
   id: string;
+  prId: string;
   type: "new_review" | "review_request";
   prTitle: string;
   prUrl: string;
