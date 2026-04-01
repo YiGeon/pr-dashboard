@@ -60,7 +60,11 @@
       {#if pr.isDraft}
         <span class="draft-badge">Draft</span>
       {/if}
-      <button class="expand-btn" onclick={toggleExpand} title="상세 보기">{expanded ? "▾" : "▸"}</button>
+      <button class="expand-btn" class:expanded onclick={toggleExpand} title="상세 보기">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z"/>
+        </svg>
+      </button>
     </div>
     <div class="card-meta">
       <span class="repo entity-badge" style={entityBadgeStyle(pr.repo)}>{pr.repo}</span>
@@ -385,22 +389,33 @@
   }
 
   .expand-btn {
-    background: none;
-    border: 1px solid #30363d;
-    color: #8b949e;
-    font-size: 12px;
-    padding: 0 0.375rem;
-    border-radius: 4px;
+    background: transparent;
+    border: none;
+    color: #484f58;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 6px;
     cursor: pointer;
     flex-shrink: 0;
-    line-height: 1.4;
     margin-left: auto;
-    transition: color 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  .expand-btn svg {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .expand-btn.expanded svg {
+    transform: rotate(90deg);
   }
 
   .expand-btn:hover {
-    color: #58a6ff;
-    border-color: #58a6ff;
+    color: #c9d1d9;
+    background: rgba(255, 255, 255, 0.06);
   }
 
   .detail-panel {
