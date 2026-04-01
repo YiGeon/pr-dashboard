@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { relativeTime, computeReviewStatus, reviewStatusPriority, labelTextColor } from "../../src/lib/utils";
+import { relativeTime, computeReviewStatus, reviewStatusPriority, labelTextColor, hashString, entityBadgeStyle } from "../../src/lib/utils";
 
 describe("relativeTime", () => {
   beforeEach(() => {
@@ -79,5 +79,40 @@ describe("labelTextColor", () => {
 
   it("returns dark text for white", () => {
     expect(labelTextColor("ffffff")).toBe("#24292f");
+  });
+});
+
+describe("hashString", () => {
+  it("returns the same value for the same input", () => {
+    expect(hashString("my-org/my-repo")).toBe(hashString("my-org/my-repo"));
+  });
+
+  it("returns different values for different inputs", () => {
+    expect(hashString("react")).not.toBe(hashString("vue"));
+  });
+
+  it("returns a non-negative number", () => {
+    expect(hashString("test")).toBeGreaterThanOrEqual(0);
+  });
+
+  it("handles empty string", () => {
+    expect(hashString("")).toBe(0);
+  });
+});
+
+describe("entityBadgeStyle", () => {
+  it("returns a CSS string with background, border, and color", () => {
+    const style = entityBadgeStyle("my-org/my-repo");
+    expect(style).toContain("background:");
+    expect(style).toContain("border:");
+    expect(style).toContain("color:");
+  });
+
+  it("returns the same style for the same input", () => {
+    expect(entityBadgeStyle("octocat")).toBe(entityBadgeStyle("octocat"));
+  });
+
+  it("returns different styles for different inputs", () => {
+    expect(entityBadgeStyle("alice")).not.toBe(entityBadgeStyle("bob"));
   });
 });
