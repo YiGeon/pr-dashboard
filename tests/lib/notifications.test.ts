@@ -17,9 +17,8 @@ import {
 } from "../../src/lib/notifications";
 import { get } from "svelte/store";
 import type { MyPR, ReviewRequestedPR, AppNotification } from "../../src/lib/types";
-import { activeTab } from "../../src/lib/stores/filters";
+import { activeTab, searchQuery, selectedOrgs, highlightedPRId } from "../../src/lib/stores/filters";
 import { showSettings } from "../../src/lib/stores/settings";
-import { searchQuery } from "../../src/lib/stores/filters";
 
 describe("detectNewReviews", () => {
   it("returns empty when no changes", () => {
@@ -88,6 +87,7 @@ describe("notification store", () => {
   it("addNotification adds to store and saves to localStorage", () => {
     addNotification({
       type: "new_review",
+      prId: "PR_1",
       prTitle: "fix: bug",
       prUrl: "https://github.com/a/b/pull/1",
       actor: "kim",
@@ -106,6 +106,7 @@ describe("notification store", () => {
     for (let i = 0; i < MAX_NOTIFICATIONS + 5; i++) {
       addNotification({
         type: "review_request",
+        prId: `PR_${i}`,
         prTitle: `PR #${i}`,
         prUrl: `https://github.com/a/b/pull/${i}`,
         actor: "user",
@@ -118,6 +119,7 @@ describe("notification store", () => {
   it("markAsRead marks a single notification as read", () => {
     addNotification({
       type: "new_review",
+      prId: "PR_1",
       prTitle: "fix: bug",
       prUrl: "https://github.com/a/b/pull/1",
       actor: "kim",
@@ -130,16 +132,16 @@ describe("notification store", () => {
   });
 
   it("markAllAsRead marks all notifications as read", () => {
-    addNotification({ type: "new_review", prTitle: "PR 1", prUrl: "", actor: "a" });
-    addNotification({ type: "review_request", prTitle: "PR 2", prUrl: "", actor: "b" });
+    addNotification({ type: "new_review", prId: "PR_1", prTitle: "PR 1", prUrl: "", actor: "a" });
+    addNotification({ type: "review_request", prId: "PR_2", prTitle: "PR 2", prUrl: "", actor: "b" });
     markAllAsRead();
     const items = get(notifications);
     expect(items.every((n) => n.read)).toBe(true);
   });
 
   it("unreadCount returns count of unread notifications", () => {
-    addNotification({ type: "new_review", prTitle: "PR 1", prUrl: "", actor: "a" });
-    addNotification({ type: "review_request", prTitle: "PR 2", prUrl: "", actor: "b" });
+    addNotification({ type: "new_review", prId: "PR_1", prTitle: "PR 1", prUrl: "", actor: "a" });
+    addNotification({ type: "review_request", prId: "PR_2", prTitle: "PR 2", prUrl: "", actor: "b" });
     expect(get(unreadCount)).toBe(2);
     markAsRead(get(notifications)[0].id);
     expect(get(unreadCount)).toBe(1);
@@ -148,6 +150,7 @@ describe("notification store", () => {
   it("loadNotifications restores from localStorage", () => {
     const saved: AppNotification[] = [{
       id: "test-1",
+      prId: "PR_saved",
       type: "new_review",
       prTitle: "saved PR",
       prUrl: "",
@@ -164,6 +167,7 @@ describe("notification store", () => {
   it("loadNotifications removes expired notifications (older than TTL)", () => {
     const old: AppNotification[] = [{
       id: "old-1",
+      prId: "PR_old",
       type: "new_review",
       prTitle: "expired PR",
       prUrl: "",
@@ -183,34 +187,59 @@ describe("navigateToNotification", () => {
     notifications.set([]);
     activeTab.set("my-prs");
     searchQuery.set("");
+    selectedOrgs.set([]);
+    highlightedPRId.set(null);
     showSettings.set(false);
   });
 
-  it("switches to my-prs tab for new_review type", () => {
+  it("should set highlightedPRId and clear filters when prId exists", () => {
     const notif: AppNotification = {
-      id: "1", type: "new_review", prTitle: "fix: bug",
-      prUrl: "", actor: "kim", read: false, createdAt: new Date().toISOString(),
+      id: "n1",
+      prId: "PR_123",
+      type: "new_review",
+      prTitle: "Test PR",
+      prUrl: "https://github.com/test/repo/pull/1",
+      actor: "user1",
+      read: false,
+      createdAt: new Date().toISOString(),
     };
     navigateToNotification(notif);
     expect(get(activeTab)).toBe("my-prs");
-    expect(get(searchQuery)).toBe("fix: bug");
-    expect(get(showSettings)).toBe(false);
+    expect(get(searchQuery)).toBe("");
+    expect(get(selectedOrgs)).toEqual([]);
+    expect(get(highlightedPRId)).toBe("PR_123");
+  });
+
+  it("should do nothing when prId is missing", () => {
+    const notif = {
+      id: "n2",
+      type: "new_review",
+      prTitle: "Old PR",
+      prUrl: "https://github.com/test/repo/pull/2",
+      actor: "user1",
+      read: false,
+      createdAt: new Date().toISOString(),
+    } as AppNotification;
+    searchQuery.set("something");
+    navigateToNotification(notif);
+    expect(get(searchQuery)).toBe("something");
   });
 
   it("switches to review-requests tab for review_request type", () => {
     showSettings.set(true);
     const notif: AppNotification = {
-      id: "2", type: "review_request", prTitle: "feat: payment",
+      id: "2", prId: "PR_456", type: "review_request", prTitle: "feat: payment",
       prUrl: "", actor: "hong", read: false, createdAt: new Date().toISOString(),
     };
     navigateToNotification(notif);
     expect(get(activeTab)).toBe("review-requests");
-    expect(get(searchQuery)).toBe("feat: payment");
+    expect(get(searchQuery)).toBe("");
     expect(get(showSettings)).toBe(false);
+    expect(get(highlightedPRId)).toBe("PR_456");
   });
 
   it("marks the notification as read", () => {
-    addNotification({ type: "new_review", prTitle: "test", prUrl: "", actor: "a" });
+    addNotification({ type: "new_review", prId: "PR_test", prTitle: "test", prUrl: "", actor: "a" });
     const notif = get(notifications)[0];
     navigateToNotification(notif);
     expect(get(notifications)[0].read).toBe(true);
@@ -224,7 +253,7 @@ describe("toastQueue", () => {
 
   it("dismissToast removes a toast by id", () => {
     const notif: AppNotification = {
-      id: "t1", type: "new_review", prTitle: "test",
+      id: "t1", prId: "PR_t1", type: "new_review", prTitle: "test",
       prUrl: "", actor: "a", read: false, createdAt: new Date().toISOString(),
     };
     toastQueue.set([notif]);

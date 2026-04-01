@@ -1,10 +1,11 @@
 import { writable, derived, get } from "svelte/store";
 import type { MyPR, ReviewRequestedPR, AppNotification } from "./types";
 import { settings } from "./stores/settings";
-import { activeTab, searchQuery } from "./stores/filters";
+import { activeTab, searchQuery, selectedOrgs, setHighlightedPRId } from "./stores/filters";
 import { showSettings } from "./stores/settings";
 
 export interface NewReviewEvent {
+  prId: string;
   prTitle: string;
   prUrl: string;
   reviewer: string;
@@ -12,6 +13,7 @@ export interface NewReviewEvent {
 }
 
 export interface NewReviewRequestEvent {
+  prId: string;
   prTitle: string;
   prUrl: string;
   author: string;
@@ -47,6 +49,7 @@ export function loadNotifications() {
 
 export function addNotification(event: {
   type: "new_review" | "review_request";
+  prId: string;
   prTitle: string;
   prUrl: string;
   actor: string;
@@ -54,6 +57,7 @@ export function addNotification(event: {
 }) {
   const item: AppNotification = {
     id: crypto.randomUUID(),
+    prId: event.prId,
     type: event.type,
     prTitle: event.prTitle,
     prUrl: event.prUrl,
@@ -92,9 +96,12 @@ export function dismissToast(id: string) {
 }
 
 export function navigateToNotification(notif: AppNotification) {
+  if (!notif.prId) return;
   showSettings.set(false);
   activeTab.set(notif.type === "new_review" ? "my-prs" : "review-requests");
-  searchQuery.set(notif.prTitle);
+  searchQuery.set("");
+  selectedOrgs.set([]);
+  setHighlightedPRId(notif.prId);
   markAsRead(notif.id);
 }
 
@@ -114,6 +121,7 @@ export function detectNewReviews(prev: MyPR[], curr: MyPR[]): NewReviewEvent[] {
       const key = `${review.author}:${review.submittedAt}`;
       if (!prevReviewKeys.has(key)) {
         events.push({
+          prId: pr.id,
           prTitle: pr.title,
           prUrl: pr.url,
           reviewer: review.author,
@@ -134,6 +142,7 @@ export function detectNewReviewRequests(
   return curr
     .filter((pr) => !prevIds.has(pr.id))
     .map((pr) => ({
+      prId: pr.id,
       prTitle: pr.title,
       prUrl: pr.url,
       author: pr.author,
@@ -164,6 +173,7 @@ export async function checkAndNotify(
     for (const event of newReviews) {
       addNotification({
         type: "new_review",
+        prId: event.prId,
         prTitle: event.prTitle,
         prUrl: event.prUrl,
         actor: event.reviewer,
@@ -190,6 +200,7 @@ export async function checkAndNotify(
     for (const event of newRequests) {
       addNotification({
         type: "review_request",
+        prId: event.prId,
         prTitle: event.prTitle,
         prUrl: event.prUrl,
         actor: event.author,
