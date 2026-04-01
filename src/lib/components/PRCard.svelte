@@ -5,6 +5,7 @@
   import { relativeTime, formatDate, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, hexToRgb, labelTextColor, entityBadgeStyle } from "$lib/utils";
   import { fetchPRDetail } from "$lib/github/client";
   import { prNotes, setNote, PRIORITY_COLORS, PRIORITY_LABELS, type Priority } from "$lib/stores/notes";
+  import { archivePR } from "$lib/stores/archive";
 
   let { pr, mode, focused = false }: { pr: MyPR | ReviewRequestedPR; mode: TabKey; focused?: boolean } = $props();
 
@@ -75,6 +76,12 @@
   function startEditMemo(e: MouseEvent) {
     e.stopPropagation();
     editingMemo = true;
+  }
+
+  function handleArchive(e: MouseEvent) {
+    e.stopPropagation();
+    archivePR(pr.id);
+    expanded = false;
   }
 
   function labelStyle(label: Label): string {
@@ -200,6 +207,7 @@
                 {note?.memo || "메모 추가..."}
               </button>
             {/if}
+            <button class="archive-btn" onclick={handleArchive} title="이 PR 숨기기">🗂 Archive</button>
           </div>
         </div>
         {#if detailLoading}
@@ -517,6 +525,24 @@
   .memo-btn:hover {
     border-color: #30363d;
     color: #8b949e;
+  }
+
+  .archive-btn {
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    font-size: 11px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: auto;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .archive-btn:hover {
+    color: #f85149;
+    border-color: #f85149;
   }
 
   .pr-card.expanded {

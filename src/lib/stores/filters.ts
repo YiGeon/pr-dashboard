@@ -1,6 +1,8 @@
 import { writable, derived, type Readable } from "svelte/store";
 import type { MyPR, ReviewRequestedPR, SortKey } from "../types";
 import { reviewStatusPriority } from "../utils";
+import { archivedIds } from "./archive";
+export const showArchived = writable<boolean>(false);
 
 export const selectedOrgs = writable<string[]>([]);
 export const searchQuery = writable("");
@@ -30,8 +32,14 @@ export function applyFilters<T extends Filterable>(items: T[], orgs: string[], q
 
 export function makeFilteredStore<T extends Filterable>(source: Readable<T[]>) {
   return derived(
-    [source, selectedOrgs, searchQuery, sortKey],
-    ([$items, $orgs, $query, $sortKey]) => applySorting(applyFilters($items, $orgs, $query), $sortKey)
+    [source, selectedOrgs, searchQuery, sortKey, archivedIds, showArchived],
+    ([$items, $orgs, $query, $sortKey, $archived, $showArchived]) => {
+      let filtered = applyFilters($items, $orgs, $query);
+      if (!$showArchived) {
+        filtered = filtered.filter((item) => !$archived.has(item.id));
+      }
+      return applySorting(filtered, $sortKey);
+    }
   );
 }
 

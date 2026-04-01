@@ -1,6 +1,7 @@
 <script lang="ts">
   import { organizations } from "$lib/stores/prs";
-  import { selectedOrgs, searchQuery, sortKey, groupByRepo } from "$lib/stores/filters";
+  import { selectedOrgs, searchQuery, sortKey, groupByRepo, showArchived } from "$lib/stores/filters";
+  import { archivedIds } from "$lib/stores/archive";
   import type { SortKey } from "$lib/types";
 
   let orgDropdownOpen = $state(false);
@@ -72,6 +73,17 @@
   >
     {$groupByRepo ? "▤ Grouped" : "▤ Flat"}
   </button>
+
+  {#if $archivedIds.size > 0}
+    <button
+      class="filter-btn"
+      class:active={$showArchived}
+      onclick={() => showArchived.update(v => !v)}
+      title="아카이브된 PR 표시"
+    >
+      🗂 {$archivedIds.size}
+    </button>
+  {/if}
 
   <input
     type="text"
