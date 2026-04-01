@@ -25,7 +25,12 @@
     return STATUS_COLORS[(pr as ReviewRequestedPR).myReviewStatus];
   }
 
-  async function toggleExpand() {
+  function handleClick() {
+    window.open(pr.url, "_blank");
+  }
+
+  async function toggleExpand(e: MouseEvent) {
+    e.stopPropagation();
     expanded = !expanded;
     if (expanded && !detail) {
       detailLoading = true;
@@ -39,11 +44,6 @@
     }
   }
 
-  function openInGitHub(e: MouseEvent) {
-    e.stopPropagation();
-    window.open(pr.url, "_blank");
-  }
-
   function labelStyle(label: Label): string {
     const [r, g, b] = hexToRgb(label.color);
     return `background: rgba(${r},${g},${b},0.2); border-color: rgba(${r},${g},${b},0.3); color: ${labelTextColor(label.color)}`;
@@ -52,7 +52,7 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="pr-card" class:focused class:expanded onclick={toggleExpand} bind:this={cardEl}>
+<div class="pr-card" class:focused class:expanded onclick={handleClick} bind:this={cardEl}>
   <div class="status-bar" style="background: {getBarColor()}"></div>
   <div class="card-content">
     <div class="card-header">
@@ -60,7 +60,7 @@
       {#if pr.isDraft}
         <span class="draft-badge">Draft</span>
       {/if}
-      <button class="open-link" onclick={openInGitHub} title="GitHub에서 열기">↗</button>
+      <button class="expand-btn" onclick={toggleExpand} title="상세 보기">{expanded ? "▾" : "▸"}</button>
     </div>
     <div class="card-meta">
       <span class="repo entity-badge" style={entityBadgeStyle(pr.repo)}>{pr.repo}</span>
@@ -384,7 +384,7 @@
     background: #1c2129;
   }
 
-  .open-link {
+  .expand-btn {
     background: none;
     border: 1px solid #30363d;
     color: #8b949e;
@@ -398,7 +398,7 @@
     transition: color 0.15s, border-color 0.15s;
   }
 
-  .open-link:hover {
+  .expand-btn:hover {
     color: #58a6ff;
     border-color: #58a6ff;
   }

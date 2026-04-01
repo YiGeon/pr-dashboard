@@ -9,7 +9,16 @@ export const sortKey = writable<SortKey>("updatedAt");
 export type TabKey = "my-prs" | "review-requests" | "approved";
 export const activeTab = writable<TabKey>("review-requests");
 export const focusedIndex = writable<number>(-1);
-export const groupByRepo = writable<boolean>(false);
+function loadGroupByRepo(): boolean {
+  if (typeof localStorage === "undefined") return false;
+  try { return localStorage.getItem("pr-group-by-repo") === "true"; } catch { return false; }
+}
+export const groupByRepo = writable<boolean>(loadGroupByRepo());
+let groupInitialized = false;
+groupByRepo.subscribe((v) => {
+  if (!groupInitialized) { groupInitialized = true; return; }
+  if (typeof localStorage !== "undefined") localStorage.setItem("pr-group-by-repo", String(v));
+});
 
 type Filterable = MyPR | ReviewRequestedPR;
 
