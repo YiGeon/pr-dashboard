@@ -64,14 +64,22 @@
     <option value="reviewStatus">Review Status</option>
   </select>
 
-  <button
-    class="filter-btn"
-    class:active={$groupByRepo}
-    onclick={() => groupByRepo.update(v => !v)}
-    title="레포별 그룹핑"
-  >
-    {$groupByRepo ? "▤ Grouped" : "▤ Flat"}
-  </button>
+  <div class="view-toggle">
+    <button
+      class="view-toggle-btn"
+      class:active={!$groupByRepo}
+      onclick={() => groupByRepo.set(false)}
+    >
+      Flat
+    </button>
+    <button
+      class="view-toggle-btn"
+      class:active={$groupByRepo}
+      onclick={() => groupByRepo.set(true)}
+    >
+      Grouped
+    </button>
+  </div>
 
   <input
     type="text"
@@ -111,12 +119,6 @@
     border-color: #484f58;
   }
 
-  .filter-btn.active {
-    background: #1f6feb;
-    border-color: #1f6feb;
-    color: #fff;
-  }
-
   .dropdown {
     position: absolute;
     top: 100%;
@@ -150,6 +152,37 @@
     color: #8b949e;
     font-size: 0.875rem;
     padding: 0.375rem 0.5rem;
+  }
+
+  .view-toggle {
+    display: inline-flex;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .view-toggle-btn {
+    background: #161b22;
+    color: #8b949e;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .view-toggle-btn:not(:first-child) {
+    border-left: 1px solid #30363d;
+  }
+
+  .view-toggle-btn:hover:not(.active) {
+    color: #c9d1d9;
+    background: #1c2129;
+  }
+
+  .view-toggle-btn.active {
+    background: #1f6feb;
+    color: #fff;
   }
 
   .search-input {
