@@ -2,6 +2,7 @@
   import type { MyPR, ReviewRequestedPR, Label } from "$lib/types";
   import type { TabKey } from "$lib/stores/filters";
   import type { PRDetail } from "$lib/github/queries";
+  import { highlightedPRId } from "$lib/stores/filters";
   import { relativeTime, formatDate, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, hexToRgb, labelTextColor, entityBadgeStyle } from "$lib/utils";
   import { fetchPRDetail } from "$lib/github/client";
 
@@ -15,6 +16,14 @@
   $effect(() => {
     if (focused && cardEl) {
       cardEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  });
+
+  const highlighted = $derived($highlightedPRId === pr.id);
+
+  $effect(() => {
+    if (highlighted && cardEl) {
+      cardEl.scrollIntoView({ block: "center", behavior: "smooth" });
     }
   });
 
@@ -52,7 +61,7 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="pr-card" class:focused class:expanded onclick={handleClick} bind:this={cardEl}>
+<div class="pr-card" class:focused class:expanded class:highlighted onclick={handleClick} bind:this={cardEl}>
   <div class="status-bar" style="background: {getBarColor()}"></div>
   <div class="card-content">
     <div class="card-header">
@@ -389,6 +398,23 @@
   .pr-card.expanded {
     border-color: #30363d;
     background: #1c2129;
+  }
+
+  .pr-card.highlighted {
+    border-color: #58a6ff;
+    box-shadow: 0 0 12px rgba(88, 166, 255, 0.3);
+    animation: highlight-glow 1.5s ease-in-out 2;
+  }
+
+  @keyframes highlight-glow {
+    0%, 100% {
+      box-shadow: 0 0 4px rgba(88, 166, 255, 0.2);
+      border-color: #58a6ff;
+    }
+    50% {
+      box-shadow: 0 0 16px rgba(88, 166, 255, 0.5);
+      border-color: #79c0ff;
+    }
   }
 
   .expand-btn {
