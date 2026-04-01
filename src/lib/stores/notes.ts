@@ -10,6 +10,7 @@ export interface PRNote {
 const STORAGE_KEY = "pr-notes";
 
 function loadFromStorage(): Record<string, PRNote> {
+  if (typeof localStorage === "undefined") return {};
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : {};
@@ -19,6 +20,7 @@ function loadFromStorage(): Record<string, PRNote> {
 }
 
 function saveToStorage(notes: Record<string, PRNote>) {
+  if (typeof localStorage === "undefined") return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
 }
 

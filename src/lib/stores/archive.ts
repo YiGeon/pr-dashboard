@@ -3,6 +3,7 @@ import { writable } from "svelte/store";
 const STORAGE_KEY = "pr-archive";
 
 function loadFromStorage(): Set<string> {
+  if (typeof localStorage === "undefined") return new Set();
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? new Set(JSON.parse(raw)) : new Set();
@@ -12,6 +13,7 @@ function loadFromStorage(): Set<string> {
 }
 
 function saveToStorage(ids: Set<string>) {
+  if (typeof localStorage === "undefined") return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
 }
 
