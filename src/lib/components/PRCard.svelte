@@ -19,10 +19,6 @@
   let editingMemo = $state(false);
 
   $effect(() => {
-    memoInput = note?.memo ?? "";
-  });
-
-  $effect(() => {
     if (focused && cardEl) {
       cardEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
@@ -75,6 +71,7 @@
 
   function startEditMemo(e: MouseEvent) {
     e.stopPropagation();
+    memoInput = note?.memo ?? "";
     editingMemo = true;
   }
 

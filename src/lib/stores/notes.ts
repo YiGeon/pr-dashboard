@@ -1,4 +1,4 @@
-import { writable, get } from "svelte/store";
+import { writable } from "svelte/store";
 
 export type Priority = "high" | "medium" | "low" | null;
 
@@ -26,7 +26,11 @@ function saveToStorage(notes: Record<string, PRNote>) {
 
 export const prNotes = writable<Record<string, PRNote>>(loadFromStorage());
 
-prNotes.subscribe(saveToStorage);
+let initialized = false;
+prNotes.subscribe((notes) => {
+  if (!initialized) { initialized = true; return; }
+  saveToStorage(notes);
+});
 
 export function setNote(prId: string, memo: string, priority: Priority) {
   prNotes.update((notes) => {
@@ -36,10 +40,6 @@ export function setNote(prId: string, memo: string, priority: Priority) {
     }
     return { ...notes, [prId]: { memo, priority } };
   });
-}
-
-export function getNote(prId: string): PRNote | null {
-  return get(prNotes)[prId] ?? null;
 }
 
 export const PRIORITY_COLORS: Record<string, string> = {

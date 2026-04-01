@@ -162,8 +162,10 @@ export function parsePRDetail(data: any): PRDetail {
     }))
   );
 
-  const comments = [...issueComments, ...threadComments]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  const allComments = [...issueComments, ...threadComments];
+  const timestamps = new Map(allComments.map((c) => [c, new Date(c.createdAt).getTime()]));
+  const comments = allComments
+    .sort((a, b) => timestamps.get(b)! - timestamps.get(a)!)
     .slice(0, 15);
 
   return { commits, comments };
@@ -269,7 +271,6 @@ export function parseReviewRequestedPRs(nodes: any[], username: string, forcePen
           submittedAt: r.submittedAt,
         }));
 
-      // 저자별 최신 리뷰만 유지
       const latestByAuthor = new Map<string, Review>();
       for (const r of otherReviews) {
         const existing = latestByAuthor.get(r.author);

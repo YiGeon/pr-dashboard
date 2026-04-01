@@ -19,10 +19,18 @@ function saveToStorage(ids: Set<string>) {
 
 export const archivedIds = writable<Set<string>>(loadFromStorage());
 
-archivedIds.subscribe(saveToStorage);
+let initialized = false;
+archivedIds.subscribe((ids) => {
+  if (!initialized) { initialized = true; return; }
+  saveToStorage(ids);
+});
 
 export function archivePR(prId: string) {
-  archivedIds.update((ids) => new Set([...ids, prId]));
+  archivedIds.update((ids) => {
+    const next = new Set(ids);
+    next.add(prId);
+    return next;
+  });
 }
 
 export function unarchivePR(prId: string) {
