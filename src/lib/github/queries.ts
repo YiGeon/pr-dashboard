@@ -22,6 +22,7 @@ export const MY_PRS_QUERY = `
           }
           mergeable
           baseRefName
+          headRefName
           isDraft
           labels(first: 10) {
             nodes { name color }
@@ -60,6 +61,7 @@ export const REVIEW_REQUESTED_QUERY = `
           }
           mergeable
           baseRefName
+          headRefName
           isDraft
           labels(first: 10) {
             nodes { name color }
@@ -239,6 +241,7 @@ export function parseMyPRs(nodes: any[]): MyPR[] {
         reviewStatus: computeReviewStatus(mapped),
         ciStatus,
         baseRef: node.baseRefName ?? "main",
+        headRef: node.headRefName ?? "",
         labels: (node.labels?.nodes ?? []).map((l: any) => ({ name: l.name, color: l.color })),
         unresolvedThreads: (node.reviewThreads?.nodes ?? []).filter((t: any) => !t.isResolved).length,
         additions: node.additions ?? 0,
@@ -302,6 +305,7 @@ export function parseReviewRequestedPRs(nodes: any[], username: string, forcePen
         previousReviewStatus: forcePending ? myLatestState : null,
         reviews: [...latestByAuthor.values()],
         baseRef: node.baseRefName ?? "main",
+        headRef: node.headRefName ?? "",
         labels: (node.labels?.nodes ?? []).map((l: any) => ({ name: l.name, color: l.color })),
         unresolvedThreads: (node.reviewThreads?.nodes ?? []).filter((t: any) => !t.isResolved).length,
         additions: node.additions ?? 0,

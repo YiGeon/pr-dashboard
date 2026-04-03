@@ -77,7 +77,7 @@
     </div>
     <div class="card-meta">
       <span class="repo entity-badge" style={entityBadgeStyle(pr.repo)}>{pr.repo}</span>
-      <span class="base-ref">← {pr.baseRef}</span>
+      <span class="branch-ref"><span class="head-ref">{pr.headRef}</span> → <span class="base-ref-name">{pr.baseRef}</span></span>
       {#if mode === "review-requests" && "author" in pr}
         <span class="separator">·</span>
         <span class="author entity-badge" style={entityBadgeStyle(pr.author)}>by {pr.author}</span>
@@ -335,7 +335,22 @@
     flex-shrink: 0;
   }
 
-  .card-meta .base-ref {
+  .card-meta .branch-ref {
+    color: #656d76;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+  }
+
+  .card-meta .head-ref {
+    color: #58a6ff;
+  }
+
+  .card-meta .base-ref-name {
     color: #656d76;
   }
 

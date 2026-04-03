@@ -28,6 +28,7 @@ export interface MyPR {
   reviewStatus: ReviewState;
   ciStatus: CIStatus;
   baseRef: string;
+  headRef: string;
   labels: Label[];
   unresolvedThreads: number;
   additions: number;
@@ -51,6 +52,7 @@ export interface ReviewRequestedPR {
   previousReviewStatus: ReviewState | null;
   reviews: Review[];
   baseRef: string;
+  headRef: string;
   labels: Label[];
   unresolvedThreads: number;
   additions: number;
