@@ -13,6 +13,7 @@ export interface Review {
   author: string;
   state: ReviewState;
   submittedAt: string;
+  reRequested: boolean;
 }
 
 export interface MyPR {
