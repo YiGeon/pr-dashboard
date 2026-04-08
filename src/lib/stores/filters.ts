@@ -4,7 +4,16 @@ import { reviewStatusPriority } from "../utils";
 
 export const selectedOrgs = writable<string[]>([]);
 export const searchQuery = writable("");
-export const sortKey = writable<SortKey>("updatedAt");
+function loadSortKey(): SortKey {
+  if (typeof localStorage === "undefined") return "updatedAt";
+  try { return (localStorage.getItem("pr-sort-key") as SortKey) ?? "updatedAt"; } catch { return "updatedAt"; }
+}
+export const sortKey = writable<SortKey>(loadSortKey());
+let sortInitialized = false;
+sortKey.subscribe((v) => {
+  if (!sortInitialized) { sortInitialized = true; return; }
+  if (typeof localStorage !== "undefined") localStorage.setItem("pr-sort-key", v);
+});
 
 export type TabKey = "my-prs" | "review-requests" | "approved";
 export const activeTab = writable<TabKey>("review-requests");

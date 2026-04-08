@@ -76,15 +76,18 @@
       </button>
     </div>
     <div class="card-meta">
-      <span class="repo entity-badge" style={entityBadgeStyle(pr.repo)}>{pr.repo}</span>
-      {#if mode === "review-requests" && "author" in pr}
+      <span class="meta-left">
+        <span class="repo entity-badge" style={entityBadgeStyle(pr.repo)}>{pr.repo}</span>
+        {#if mode === "review-requests" && "author" in pr}
+          <span class="separator">·</span>
+          <span class="author entity-badge" style={entityBadgeStyle(pr.author)}>by {pr.author}</span>
+        {/if}
+      </span>
+      <span class="meta-right">
+        <span class="time" title="Created: {formatDate(pr.createdAt)}">created {relativeTime(pr.createdAt)}</span>
         <span class="separator">·</span>
-        <span class="author entity-badge" style={entityBadgeStyle(pr.author)}>by {pr.author}</span>
-      {/if}
-      <span class="separator">·</span>
-      <span class="time" title="Created: {formatDate(pr.createdAt)}">created {relativeTime(pr.createdAt)}</span>
-      <span class="separator">·</span>
-      <span class="time" title="Updated: {formatDate(pr.updatedAt)}">updated {relativeTime(pr.updatedAt)}</span>
+        <span class="time" title="Updated: {formatDate(pr.updatedAt)}">updated {relativeTime(pr.updatedAt)}</span>
+      </span>
     </div>
     <div class="branch-ref"><span class="head-ref">{pr.headRef}</span> → <span class="base-ref-name">{pr.baseRef}</span></div>
     {#if mode === "my-prs"}
@@ -262,11 +265,17 @@
 
   .card-meta {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.625rem;
     font-size: 12px;
     color: #8b949e;
     margin-bottom: 0.25rem;
+  }
+
+  .meta-left, .meta-right {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
   }
 
   .entity-badge {
@@ -350,18 +359,16 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
     margin-bottom: 0.625rem;
+    min-width: 0;
   }
 
   .branch-ref .head-ref {
     color: #58a6ff;
-  }
-
-  .branch-ref .base-ref-name {
-    color: #656d76;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
 
   .card-meta .separator {
