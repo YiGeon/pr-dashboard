@@ -33,6 +33,14 @@ export const MY_PRS_QUERY = `
           additions
           deletions
           changedFiles
+          reviewRequests(first: 20) {
+            nodes {
+              requestedReviewer {
+                ... on User { login }
+                ... on Team { name }
+              }
+            }
+          }
         }
       }
     }
@@ -218,12 +226,30 @@ export function parseMyPRs(nodes: any[]): MyPR[] {
         state: r.state as string,
         submittedAt: r.submittedAt as string,
       }));
+
+      // reviewRequests에서 재요청된 리뷰어 목록 추출
+      const requestedReviewers = new Set<string>(
+        (node.reviewRequests?.nodes ?? [])
+          .map((rr: any) => rr.requestedReviewer?.login ?? rr.requestedReviewer?.name)
+          .filter(Boolean)
+      );
+
       const latestByAuthor = new Map<string, Review>();
       for (const r of mapped) {
-        const review: Review = { ...r, state: normalizeReviewState(r.state) };
+        const review: Review = {
+          ...r,
+          state: normalizeReviewState(r.state),
+          reRequested: requestedReviewers.has(r.author),
+        };
         latestByAuthor.set(r.author, review);
       }
       const reviews: Review[] = [...latestByAuthor.values()];
+
+      // computeReviewStatus에 reRequested 정보 전달
+      const rawWithReRequested = mapped.map((r: any) => ({
+        ...r,
+        reRequested: requestedReviewers.has(r.author),
+      }));
 
       const commitNode = node.commits?.nodes?.[0]?.commit;
       const ciStatus = normalizeCIStatus(commitNode?.statusCheckRollup ?? null);
@@ -238,7 +264,7 @@ export function parseMyPRs(nodes: any[]): MyPR[] {
         createdAt: node.createdAt,
         updatedAt: node.updatedAt,
         reviews,
-        reviewStatus: computeReviewStatus(mapped),
+        reviewStatus: computeReviewStatus(rawWithReRequested),
         ciStatus,
         baseRef: node.baseRefName ?? "main",
         headRef: node.headRefName ?? "",
@@ -277,6 +303,7 @@ export function parseReviewRequestedPRs(nodes: any[], username: string, forcePen
           author: r.author.login,
           state: normalizeReviewState(r.state),
           submittedAt: r.submittedAt,
+          reRequested: false,
         }));
 
       const latestByAuthor = new Map<string, Review>();

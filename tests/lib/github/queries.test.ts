@@ -17,6 +17,11 @@ const MOCK_MY_PRS_RESPONSE = {
             { author: { login: "lee" }, state: "APPROVED", submittedAt: "2026-03-26T10:00:00Z" },
           ],
         },
+        reviewRequests: {
+          nodes: [
+            { requestedReviewer: { login: "kim" } },
+          ],
+        },
         commits: {
           totalCount: 3,
           nodes: [{ commit: { statusCheckRollup: { state: "SUCCESS" } } }],
@@ -39,6 +44,7 @@ const MOCK_MY_PRS_RESPONSE = {
         createdAt: "2026-03-24T10:00:00Z",
         updatedAt: "2026-03-26T05:00:00Z",
         reviews: { nodes: [] },
+        reviewRequests: { nodes: [] },
         commits: {
           totalCount: 1,
           nodes: [{ commit: { statusCheckRollup: null } }],
@@ -105,10 +111,10 @@ describe("parseMyPRs", () => {
       createdAt: "2026-03-25T10:00:00Z",
       updatedAt: "2026-03-26T10:00:00Z",
       reviews: [
-        { author: "kim", state: "changes_requested", submittedAt: "2026-03-26T09:00:00Z" },
-        { author: "lee", state: "approved", submittedAt: "2026-03-26T10:00:00Z" },
+        { author: "kim", state: "changes_requested", submittedAt: "2026-03-26T09:00:00Z", reRequested: true },
+        { author: "lee", state: "approved", submittedAt: "2026-03-26T10:00:00Z", reRequested: false },
       ],
-      reviewStatus: "changes_requested",
+      reviewStatus: "approved",
       ciStatus: "success",
       baseRef: "develop",
       headRef: "fix/login-bug",
@@ -148,8 +154,8 @@ describe("parseReviewRequestedPRs", () => {
       myReviewStatus: "pending",
       previousReviewStatus: "approved",
       reviews: [
-        { author: "kim", state: "approved", submittedAt: "2026-03-26T05:00:00Z" },
-        { author: "lee", state: "commented", submittedAt: "2026-03-26T04:00:00Z" },
+        { author: "kim", state: "approved", submittedAt: "2026-03-26T05:00:00Z", reRequested: false },
+        { author: "lee", state: "commented", submittedAt: "2026-03-26T04:00:00Z", reRequested: false },
       ],
       baseRef: "main",
       headRef: "feat/payment-module",
