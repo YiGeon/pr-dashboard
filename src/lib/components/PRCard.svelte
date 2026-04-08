@@ -77,7 +77,6 @@
     </div>
     <div class="card-meta">
       <span class="repo entity-badge" style={entityBadgeStyle(pr.repo)}>{pr.repo}</span>
-      <span class="branch-ref"><span class="head-ref">{pr.headRef}</span> → <span class="base-ref-name">{pr.baseRef}</span></span>
       {#if mode === "review-requests" && "author" in pr}
         <span class="separator">·</span>
         <span class="author entity-badge" style={entityBadgeStyle(pr.author)}>by {pr.author}</span>
@@ -87,6 +86,7 @@
       <span class="separator">·</span>
       <span class="time" title="Updated: {formatDate(pr.updatedAt)}">updated {relativeTime(pr.updatedAt)}</span>
     </div>
+    <div class="branch-ref"><span class="head-ref">{pr.headRef}</span> → <span class="base-ref-name">{pr.baseRef}</span></div>
     {#if mode === "my-prs"}
       <div class="reviewers">
         {#each (pr as MyPR).reviews as review}
@@ -262,12 +262,11 @@
 
   .card-meta {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     gap: 0.625rem;
     font-size: 12px;
     color: #8b949e;
-    margin-bottom: 0.625rem;
+    margin-bottom: 0.25rem;
   }
 
   .entity-badge {
@@ -345,22 +344,23 @@
     flex-shrink: 0;
   }
 
-  .card-meta .branch-ref {
+  .branch-ref {
     color: #656d76;
-    display: inline-flex;
+    font-size: 12px;
+    display: flex;
     align-items: center;
     gap: 0.25rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 300px;
+    margin-bottom: 0.625rem;
   }
 
-  .card-meta .head-ref {
+  .branch-ref .head-ref {
     color: #58a6ff;
   }
 
-  .card-meta .base-ref-name {
+  .branch-ref .base-ref-name {
     color: #656d76;
   }
 
