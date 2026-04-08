@@ -92,7 +92,7 @@
         {#each (pr as MyPR).reviews as review}
           <span class="reviewer">
             {#if review.reRequested}
-              ⏳ {review.author}
+              {STATUS_ICONS["pending"]} {review.author}
               <span class="previous-review">
                 (prev: {STATUS_ICONS[review.state]} {STATUS_LABELS[review.state]})
               </span>

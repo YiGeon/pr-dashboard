@@ -1,4 +1,4 @@
-import type { MyPR, ReviewRequestedPR, Review, ReviewState, CIStatus, MergeableState, Label } from "../types";
+import type { MyPR, ReviewRequestedPR, Review, ReviewState, CIStatus, MergeableState } from "../types";
 import { computeReviewStatus } from "../utils";
 
 export const MY_PRS_QUERY = `
@@ -221,35 +221,28 @@ export function parseMyPRs(nodes: any[]): MyPR[] {
     .filter((node: any) => node.id)
     .map((node: any) => {
       const rawNodes = node.reviews?.nodes ?? [];
-      const mapped = rawNodes.map((r: any) => ({
-        author: r.author?.login ?? "unknown",
-        state: r.state as string,
-        submittedAt: r.submittedAt as string,
-      }));
-
-      // reviewRequests에서 재요청된 리뷰어 목록 추출
       const requestedReviewers = new Set<string>(
         (node.reviewRequests?.nodes ?? [])
           .map((rr: any) => rr.requestedReviewer?.login ?? rr.requestedReviewer?.name)
           .filter(Boolean)
       );
 
+      const mapped = rawNodes.map((r: any) => ({
+        author: r.author?.login ?? "unknown",
+        state: r.state as string,
+        submittedAt: r.submittedAt as string,
+        reRequested: requestedReviewers.has(r.author?.login ?? "unknown"),
+      }));
+
       const latestByAuthor = new Map<string, Review>();
       for (const r of mapped) {
         const review: Review = {
           ...r,
           state: normalizeReviewState(r.state),
-          reRequested: requestedReviewers.has(r.author),
         };
         latestByAuthor.set(r.author, review);
       }
       const reviews: Review[] = [...latestByAuthor.values()];
-
-      // computeReviewStatus에 reRequested 정보 전달
-      const rawWithReRequested = mapped.map((r: any) => ({
-        ...r,
-        reRequested: requestedReviewers.has(r.author),
-      }));
 
       const commitNode = node.commits?.nodes?.[0]?.commit;
       const ciStatus = normalizeCIStatus(commitNode?.statusCheckRollup ?? null);
@@ -264,7 +257,7 @@ export function parseMyPRs(nodes: any[]): MyPR[] {
         createdAt: node.createdAt,
         updatedAt: node.updatedAt,
         reviews,
-        reviewStatus: computeReviewStatus(rawWithReRequested),
+        reviewStatus: computeReviewStatus(mapped),
         ciStatus,
         baseRef: node.baseRefName ?? "main",
         headRef: node.headRefName ?? "",
