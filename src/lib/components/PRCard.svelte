@@ -91,7 +91,14 @@
       <div class="reviewers">
         {#each (pr as MyPR).reviews as review}
           <span class="reviewer">
-            {STATUS_ICONS[review.state]} {review.author}
+            {#if review.reRequested}
+              ⏳ {review.author}
+              <span class="previous-review">
+                (prev: {STATUS_ICONS[review.state]} {STATUS_LABELS[review.state]})
+              </span>
+            {:else}
+              {STATUS_ICONS[review.state]} {review.author}
+            {/if}
           </span>
         {/each}
         {#if (pr as MyPR).reviews.length === 0}
