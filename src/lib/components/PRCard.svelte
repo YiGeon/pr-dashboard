@@ -3,7 +3,7 @@
   import type { TabKey } from "$lib/stores/filters";
   import type { PRDetail } from "$lib/github/queries";
   import { highlightedPRId } from "$lib/stores/filters";
-  import { relativeTime, formatDate, STATUS_COLORS, STATUS_ICONS, STATUS_LABELS, hexToRgb, labelTextColor, entityBadgeStyle } from "$lib/utils";
+  import { relativeTime, formatDate, STATUS_COLORS, STATUS_ICONS, hexToRgb, labelTextColor, entityBadgeStyle } from "$lib/utils";
   import { fetchPRDetail } from "$lib/github/client";
 
   let { pr, mode, focused = false }: { pr: MyPR | ReviewRequestedPR; mode: TabKey; focused?: boolean } = $props();
@@ -94,7 +94,7 @@
             {#if review.reRequested}
               {STATUS_ICONS["pending"]} {review.author}
               <span class="previous-review">
-                (prev: {STATUS_ICONS[review.state]} {STATUS_LABELS[review.state]})
+                (prev: {STATUS_ICONS[review.state]})
               </span>
             {:else}
               {STATUS_ICONS[review.state]} {review.author}
@@ -110,9 +110,9 @@
       <div class="reviewers">
         <span class="my-review-status">
           {#if rrPR.previousReviewStatus}
-            ⏳ Re-review requested
+            ⏳ Re-review
             <span class="previous-review">
-              (prev: {STATUS_ICONS[rrPR.previousReviewStatus]} {STATUS_LABELS[rrPR.previousReviewStatus]})
+              (prev: {STATUS_ICONS[rrPR.previousReviewStatus]})
             </span>
           {:else}
             ⏳ Not reviewed
@@ -262,6 +262,7 @@
 
   .card-meta {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.625rem;
     font-size: 12px;
@@ -273,6 +274,7 @@
     padding: 0.0625rem 0.375rem;
     border-radius: 10px;
     font-weight: 500;
+    white-space: nowrap;
   }
 
   .card-meta .repo {
@@ -282,6 +284,7 @@
 
   .card-meta .time {
     color: #656d76;
+    white-space: nowrap;
   }
 
   .reviewers, .my-review-status {

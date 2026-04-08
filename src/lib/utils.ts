@@ -62,12 +62,6 @@ export const STATUS_ICONS: Record<ReviewState, string> = {
   pending: "⏳",
 };
 
-export const STATUS_LABELS: Record<ReviewState, string> = {
-  approved: "Approved",
-  changes_requested: "Changes requested",
-  commented: "Commented",
-  pending: "Pending",
-};
 
 export function formatNotificationBody(notif: AppNotification): string {
   if (notif.type === "new_review") return `${notif.actor} — ${notif.reviewState ?? "reviewed"}`;
