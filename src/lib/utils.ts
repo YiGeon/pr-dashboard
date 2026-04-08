@@ -24,6 +24,7 @@ interface RawReview {
   author: string;
   state: string;
   submittedAt: string;
+  reRequested?: boolean;
 }
 
 export function computeReviewStatus(reviews: RawReview[]): ReviewState {
@@ -37,7 +38,10 @@ export function computeReviewStatus(reviews: RawReview[]): ReviewState {
     }
   }
 
-  const states = [...latestByAuthor.values()].map((r) => r.state);
+  const active = [...latestByAuthor.values()].filter((r) => !r.reRequested);
+  if (active.length === 0) return "pending";
+
+  const states = active.map((r) => r.state);
   if (states.some((s) => s === "CHANGES_REQUESTED")) return "changes_requested";
   if (states.every((s) => s === "APPROVED")) return "approved";
   if (states.some((s) => s === "COMMENTED")) return "commented";

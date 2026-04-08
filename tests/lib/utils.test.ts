@@ -55,6 +55,37 @@ describe("computeReviewStatus", () => {
     ];
     expect(computeReviewStatus(reviews)).toBe("approved");
   });
+
+  it("treats changes_requested as pending when reRequested is true", () => {
+    const reviews = [
+      { author: "kim", state: "CHANGES_REQUESTED" as const, submittedAt: "2026-03-26T10:00:00Z", reRequested: true },
+      { author: "lee", state: "APPROVED" as const, submittedAt: "2026-03-26T11:00:00Z" },
+    ];
+    expect(computeReviewStatus(reviews)).toBe("approved");
+  });
+
+  it("treats approved as pending when reRequested is true", () => {
+    const reviews = [
+      { author: "kim", state: "APPROVED" as const, submittedAt: "2026-03-26T10:00:00Z", reRequested: true },
+    ];
+    expect(computeReviewStatus(reviews)).toBe("pending");
+  });
+
+  it("returns changes_requested when reRequested is false", () => {
+    const reviews = [
+      { author: "kim", state: "CHANGES_REQUESTED" as const, submittedAt: "2026-03-26T10:00:00Z", reRequested: false },
+      { author: "lee", state: "APPROVED" as const, submittedAt: "2026-03-26T11:00:00Z" },
+    ];
+    expect(computeReviewStatus(reviews)).toBe("changes_requested");
+  });
+
+  it("returns pending when all reviewers are reRequested", () => {
+    const reviews = [
+      { author: "kim", state: "CHANGES_REQUESTED" as const, submittedAt: "2026-03-26T10:00:00Z", reRequested: true },
+      { author: "lee", state: "COMMENTED" as const, submittedAt: "2026-03-26T11:00:00Z", reRequested: true },
+    ];
+    expect(computeReviewStatus(reviews)).toBe("pending");
+  });
 });
 
 describe("reviewStatusPriority", () => {
